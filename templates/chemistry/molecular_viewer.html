@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Molecular Viewer - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 fade-in">
+        <h1 class="text-gradient mb-3">
+            <i class="fas fa-atom"></i> 3D Molecular Viewer
+        </h1>
+        <p style="color: var(--text-secondary);">Visualize molecular structures in 3D space</p>
+    </div>
+    
+    <!-- Molecule Selection -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-search"></i> Select Molecule</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Water" data-formula="H2O" data-atoms="3" data-bonds="2">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tint" style="color: var(--u-green); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Water</h6>
+                                    <p class="card-text small">H₂O</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Methane" data-formula="CH4" data-atoms="5" data-bonds="4">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-fire" style="color: var(--s-yellow); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Methane</h6>
+                                    <p class="card-text small">CH₄</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Ammonia" data-formula="NH3" data-atoms="4" data-bonds="3">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-wind" style="color: var(--ni-chrome); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Ammonia</h6>
+                                    <p class="card-text small">NH₃</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Carbon Dioxide" data-formula="CO2" data-atoms="3" data-bonds="4">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-cloud" style="color: var(--er-pink); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">CO₂</h6>
+                                    <p class="card-text small">CO₂</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Ethanol" data-formula="C2H6O" data-atoms="9" data-bonds="8">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-wine-bottle" style="color: var(--ge-silver); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Ethanol</h6>
+                                    <p class="card-text small">C₂H₆O</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Glucose" data-formula="C6H12O6" data-atoms="24" data-bonds="24">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-candy-cane" style="color: var(--s-yellow); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Glucose</h6>
+                                    <p class="card-text small">C₆H₁₂O₆</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3D Viewer -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-cube"></i> 3D Molecular Structure</h4>
+                </div>
+                <div class="card-body">
+                    <div id="molecule-viewer" style="height: 500px; background: var(--bg-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <div class="text-center" style="color: var(--text-secondary);">
+                            <i class="fas fa-atom" style="font-size: 4rem; margin-bottom: 1rem; color: var(--u-green); animation: pulse 2s infinite;"></i>
+                            <h5>Select a molecule to view</h5>
+                            <p>Choose from the molecules above to see their 3D structure</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Molecule Info</h5>
+                </div>
+                <div class="card-body">
+                    <div id="molecule-info">
+                        <p style="color: var(--text-secondary);">Select a molecule to see detailed information</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="fas fa-cogs"></i> Viewer Controls</h6>
+                </div>
+                <div class="card-body">
+                    <button id="rotate-btn" class="btn btn-primary btn-sm mb-2 w-100" onclick="toggleRotation()">
+                        <i class="fas fa-sync"></i> Toggle Rotation
+                    </button>
+                    <button class="btn btn-secondary btn-sm mb-2 w-100" onclick="resetView()">
+                        <i class="fas fa-undo"></i> Reset View
+                    </button>
+                    <button class="btn btn-success btn-sm w-100" onclick="takeScreenshot()">
+                        <i class="fas fa-camera"></i> Screenshot
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let isRotating = false;
+let rotationAnimation;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to molecule cards
+    document.querySelectorAll('.molecule-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const name = this.dataset.name;
+            const formula = this.dataset.formula;
+            const atoms = this.dataset.atoms;
+            const bonds = this.dataset.bonds;
+            loadMolecule(name, formula, atoms, bonds);
+        });
+    });
+});
+
+function loadMolecule(name, formula, atoms, bonds) {
+    // Show loading state
+    document.getElementById('molecule-viewer').innerHTML = `
+        <div class="text-center" style="color: var(--text-primary);">
+            <div class="spinner-border" style="color: var(--u-green);" role="status"></div>
+            <h5 class="mt-3">Loading ${name}</h5>
+            <p style="color: var(--text-secondary);">Rendering 3D structure...</p>
+        </div>
+    `;
+    
+    // Update molecule info
+    document.getElementById('molecule-info').innerHTML = `
+        <h6 style="color: var(--u-green);">${name}</h6>
+        <hr style="border-color: var(--ni-chrome);">
+        <p><strong style="color: var(--s-yellow);">Formula:</strong> ${formula}</p>
+        <p><strong style="color: var(--er-pink);">Atoms:</strong> ${atoms}</p>
+        <p><strong style="color: var(--ni-chrome);">Bonds:</strong> ${bonds}</p>
+        <p><strong style="color: var(--ge-silver);">Type:</strong> Molecular compound</p>
+        <hr style="border-color: var(--ni-chrome);">
+        <small style="color: var(--text-muted);">
+            Interactive 3D visualization powered by GeNiUS Ed Tech
+        </small>
+    `;
+    
+    // Simulate loading and show 3D representation
+    setTimeout(() => {
+        showMolecule3D(name, formula);
+    }, 1500);
+}
+
+function showMolecule3D(name, formula) {
+    const viewer = document.getElementById('molecule-viewer');
+    viewer.innerHTML = `
+        <div style="width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center;">
+            <div id="molecule-3d" style="position: relative; transform-style: preserve-3d;">
+                <div class="molecule-structure">
+                    <div class="atom-center" style="
+                        position: absolute;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background: var(--u-green);
+                        box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 12px;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                    ">O</div>
+                    
+                    <div class="atom-h1" style="
+                        position: absolute;
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        background: var(--s-yellow);
+                        box-shadow: 0 0 15px rgba(253, 203, 110, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: black;
+                        font-weight: bold;
+                        font-size: 10px;
+                        left: 20%;
+                        top: 30%;
+                        transform: translate(-50%, -50%);
+                    ">H</div>
+                    
+                    <div class="atom-h2" style="
+                        position: absolute;
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        background: var(--s-yellow);
+                        box-shadow: 0 0 15px rgba(253, 203, 110, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: black;
+                        font-weight: bold;
+                        font-size: 10px;
+                        right: 20%;
+                        top: 30%;
+                        transform: translate(50%, -50%);
+                    ">H</div>
+                    
+                    <!-- Bonds -->
+                    <div style="
+                        position: absolute;
+                        width: 2px;
+                        height: 60px;
+                        background: var(--ni-chrome);
+                        left: 40%;
+                        top: 35%;
+                        transform: rotate(-30deg);
+                        transform-origin: bottom;
+                    "></div>
+                    
+                    <div style="
+                        position: absolute;
+                        width: 2px;
+                        height: 60px;
+                        background: var(--ni-chrome);
+                        right: 40%;
+                        top: 35%;
+                        transform: rotate(30deg);
+                        transform-origin: bottom;
+                    "></div>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+                <h4 style="color: var(--text-primary); margin: 0;">${name}</h4>
+                <p style="color: var(--s-yellow); margin: 0; font-size: 1.2rem;">${formula}</p>
+            </div>
+        </div>
+    `;
+}
+
+function toggleRotation() {
+    const molecule = document.getElementById('molecule-3d');
+    const btn = document.getElementById('rotate-btn');
+    
+    if (!isRotating) {
+        molecule.style.animation = 'rotate3D 4s linear infinite';
+        btn.innerHTML = '<i class="fas fa-pause"></i> Stop Rotation';
+        isRotating = true;
+    } else {
+        molecule.style.animation = '';
+        btn.innerHTML = '<i class="fas fa-sync"></i> Toggle Rotation';
+        isRotating = false;
+    }
+}
+
+function resetView() {
+    const molecule = document.getElementById('molecule-3d');
+    molecule.style.transform = 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
+    molecule.style.animation = '';
+    document.getElementById('rotate-btn').innerHTML = '<i class="fas fa-sync"></i> Toggle Rotation';
+    isRotating = false;
+}
+
+function takeScreenshot() {
+    // Simulate screenshot functionality
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Screenshot Taken!';
+    btn.classList.add('btn-success');
+    btn.classList.remove('btn-primary');
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-success');
+    }, 2000);
+}
+
+// Add CSS for 3D rotation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes rotate3D {
+        0% { transform: rotateX(0deg) rotateY(0deg); }
+        25% { transform: rotateX(90deg) rotateY(90deg); }
+        50% { transform: rotateX(180deg) rotateY(180deg); }
+        75% { transform: rotateX(270deg) rotateY(270deg); }
+        100% { transform: rotateX(360deg) rotateY(360deg); }
+    }
+    
+    .molecule-card:hover {
+        transform: translateY(-5px) scale(1.05);
+        cursor: pointer;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

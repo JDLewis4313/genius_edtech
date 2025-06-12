@@ -1,0 +1,445 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Interactive Quiz System - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 fade-in">
+        <h1 class="text-gradient mb-3">
+            <i class="fas fa-question-circle"></i> Interactive Quiz System
+        </h1>
+        <p style="color: var(--text-secondary);">Test your knowledge of chemistry concepts with adaptive quizzes</p>
+    </div>
+    
+    <!-- Topic Selection -->
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-book-open"></i> Select a Topic</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card feature-card quiz-topic" data-topic="atoms">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-atom me-2" style="color: var(--u-green);"></i> Atoms & Elements</h5>
+                                    <p class="card-text">Atomic structure, isotopes, and periodic table trends</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-success">Beginner</span>
+                                        <span><i class="fas fa-question-circle me-1"></i> 15 Questions</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card feature-card quiz-topic" data-topic="bonding">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-link me-2" style="color: var(--s-yellow);"></i> Chemical Bonding</h5>
+                                    <p class="card-text">Ionic, covalent, and metallic bonds, Lewis structures</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-warning">Intermediate</span>
+                                        <span><i class="fas fa-question-circle me-1"></i> 20 Questions</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card feature-card quiz-topic" data-topic="stoichiometry">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-balance-scale me-2" style="color: var(--er-pink);"></i> Stoichiometry</h5>
+                                    <p class="card-text">Balancing equations, mole calculations, limiting reactants</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-danger">Advanced</span>
+                                        <span><i class="fas fa-question-circle me-1"></i> 25 Questions</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quiz Interface (initially hidden) -->
+    <div id="quiz-interface" style="display: none;">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 id="quiz-topic-title"><i class="fas fa-atom"></i> Atoms & Elements Quiz</h4>
+                            <div>
+                                <span class="badge bg-primary me-2">Question <span id="current-question">1</span>/<span id="total-questions">15</span></span>
+                                <span class="badge bg-success">Score: <span id="score">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="question-container">
+                            <h5 id="question-text" class="mb-4">Which of the following is NOT a subatomic particle found in an atom?</h5>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="answer" id="option1" value="option1">
+                                    <label class="form-check-label" for="option1">Proton</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="answer" id="option2" value="option2">
+                                    <label class="form-check-label" for="option2">Neutron</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="answer" id="option3" value="option3">
+                                    <label class="form-check-label" for="option3">Electron</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="answer" id="option4" value="option4">
+                                    <label class="form-check-label" for="option4">Photon</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button id="submit-answer" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i> Submit Answer
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="feedback-container" style="display: none;">
+                            <div class="alert" id="feedback-alert">
+                                <h5 id="feedback-title" class="mb-2"></h5>
+                                <p id="feedback-text"></p>
+                                <hr>
+                                <h6>Explanation:</h6>
+                                <p id="explanation-text"></p>
+                            </div>
+                            
+                            <button id="next-question" class="btn btn-primary">
+                                <i class="fas fa-arrow-right me-2"></i> Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle"></i> Quiz Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-u">Topic</h6>
+                            <p id="quiz-info-topic">Atoms & Elements</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-s">Difficulty</h6>
+                            <p id="quiz-info-difficulty">Beginner</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-er">Time Elapsed</h6>
+                            <p id="time-elapsed">00:00</p>
+                        </div>
+                        <div class="progress mb-3">
+                            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%; background: var(--primary-gradient);" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6><i class="fas fa-cogs"></i> Quiz Controls</h6>
+                    </div>
+                    <div class="card-body">
+                        <button id="quit-quiz" class="btn btn-danger btn-sm mb-2 w-100">
+                            <i class="fas fa-times-circle"></i> Quit Quiz
+                        </button>
+                        <button class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-flag"></i> Report Issue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Page (initially hidden) -->
+    <div id="results-page" style="display: none;">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4><i class="fas fa-trophy"></i> Quiz Results</h4>
+                    </div>
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4">
+                            <div style="width: 150px; height: 150px; margin: 0 auto; background: conic-gradient(var(--u-green) 0% 80%, var(--bg-secondary) 80% 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; color: var(--text-primary);">
+                                80%
+                            </div>
+                        </div>
+                        
+                        <h3 class="mb-3">Great Job!</h3>
+                        <p class="lead mb-4">You scored <span id="final-score">12</span> out of <span id="final-total">15</span> questions correctly.</p>
+                        
+                        <div class="row mb-4">
+                            <div class="col-sm-4">
+                                <div class="bg-glass p-3 rounded-3">
+                                    <h4 class="text-u mb-1">12</h4>
+                                    <p class="small mb-0">Correct Answers</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="bg-glass p-3 rounded-3">
+                                    <h4 class="text-er mb-1">3</h4>
+                                    <p class="small mb-0">Incorrect Answers</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="bg-glass p-3 rounded-3">
+                                    <h4 class="text-s mb-1">05:32</h4>
+                                    <p class="small mb-0">Time Taken</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3">Performance Analysis</h5>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">Atomic Structure (90%)</div>
+                            </div>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">Isotopes (80%)</div>
+                            </div>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">Periodic Trends (70%)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-center">
+                            <button id="restart-quiz" class="btn btn-primary">
+                                <i class="fas fa-redo me-2"></i> Retake Quiz
+                            </button>
+                            <a href="{% url 'quiz:tutorials' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-book me-2"></i> More Tutorials
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Study Guide Section -->
+    <div class="row mt-5">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-book"></i> Study Guides</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-atom me-2" style="color: var(--u-green);"></i> Atomic Structure Guide</h5>
+                                    <p class="card-text">Comprehensive review of atomic structure, isotopes, and subatomic particles.</p>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">View Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-link me-2" style="color: var(--s-yellow);"></i> Chemical Bonding Explained</h5>
+                                    <p class="card-text">In-depth explanation of ionic, covalent, and metallic bonds with examples.</p>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">View Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-balance-scale me-2" style="color: var(--er-pink);"></i> Stoichiometry Masterclass</h5>
+                                    <p class="card-text">Step-by-step approach to mastering stoichiometry calculations and concepts.</p>
+                                    <a href="#" class="btn btn-outline-primary btn-sm">View Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let timer;
+    let seconds = 0;
+    
+    // Add click handlers to quiz topics
+    document.querySelectorAll('.quiz-topic').forEach(topic => {
+        topic.addEventListener('click', function() {
+            const topicName = this.dataset.topic;
+            startQuiz(topicName);
+        });
+    });
+    
+    // Start quiz function
+    function startQuiz(topic) {
+        // Update quiz info
+        document.getElementById('quiz-topic-title').innerHTML = `<i class="fas fa-${topic === 'atoms' ? 'atom' : topic === 'bonding' ? 'link' : 'balance-scale'}"></i> ${toTitleCase(topic)} Quiz`;
+        document.getElementById('quiz-info-topic').innerText = toTitleCase(topic);
+        document.getElementById('quiz-info-difficulty').innerText = topic === 'atoms' ? 'Beginner' : topic === 'bonding' ? 'Intermediate' : 'Advanced';
+        
+        // Reset quiz state
+        document.getElementById('current-question').innerText = '1';
+        document.getElementById('total-questions').innerText = topic === 'atoms' ? '15' : topic === 'bonding' ? '20' : '25';
+        document.getElementById('score').innerText = '0';
+        document.getElementById('progress-bar').style.width = '0%';
+        
+        // Show quiz interface, hide other sections
+        document.getElementById('quiz-interface').style.display = 'block';
+        document.getElementById('results-page').style.display = 'none';
+        
+        // Start timer
+        seconds = 0;
+        if (timer) clearInterval(timer);
+        timer = setInterval(updateTimer, 1000);
+        
+        // Scroll to quiz interface
+        document.getElementById('quiz-interface').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Update timer function
+    function updateTimer() {
+        seconds++;
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        document.getElementById('time-elapsed').innerText = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Handle submit answer
+    document.getElementById('submit-answer').addEventListener('click', function() {
+        // Get selected answer
+        const selectedOption = document.querySelector('input[name="answer"]:checked');
+        
+        if (!selectedOption) {
+            alert('Please select an answer');
+            return;
+        }
+        
+        // Determine if answer is correct (demo - 4th option is correct)
+        const isCorrect = selectedOption.value === 'option4';
+        
+        // Update score if correct
+        if (isCorrect) {
+            const currentScore = parseInt(document.getElementById('score').innerText);
+            document.getElementById('score').innerText = currentScore + 1;
+        }
+        
+        // Show feedback
+        document.getElementById('question-container').style.display = 'none';
+        document.getElementById('feedback-container').style.display = 'block';
+        
+        // Set feedback content
+        const feedbackAlert = document.getElementById('feedback-alert');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const explanationText = document.getElementById('explanation-text');
+        
+        if (isCorrect) {
+            feedbackAlert.className = 'alert alert-success';
+            feedbackTitle.innerText = 'Correct!';
+            feedbackText.innerText = 'Great job! You selected the right answer.';
+        } else {
+            feedbackAlert.className = 'alert alert-danger';
+            feedbackTitle.innerText = 'Incorrect';
+            feedbackText.innerText = 'The correct answer is "Photon".';
+        }
+        
+        explanationText.innerText = 'Atoms are made up of protons, neutrons, and electrons. Photons are particles of light, not components of atoms.';
+    });
+    
+    // Handle next question
+    document.getElementById('next-question').addEventListener('click', function() {
+        // Hide feedback, show question
+        document.getElementById('question-container').style.display = 'block';
+        document.getElementById('feedback-container').style.display = 'none';
+        
+        // Clear selected option
+        document.querySelectorAll('input[name="answer"]').forEach(input => {
+            input.checked = false;
+        });
+        
+        // Update question number
+        const currentQuestion = parseInt(document.getElementById('current-question').innerText);
+        const totalQuestions = parseInt(document.getElementById('total-questions').innerText);
+        
+        if (currentQuestion < totalQuestions) {
+            // Go to next question
+            document.getElementById('current-question').innerText = currentQuestion + 1;
+            
+            // Update progress bar
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        } else {
+            // End of quiz - show results
+            showResults();
+        }
+    });
+    
+    // Show results function
+    function showResults() {
+        // Stop timer
+        clearInterval(timer);
+        
+        // Hide quiz interface, show results
+        document.getElementById('quiz-interface').style.display = 'none';
+        document.getElementById('results-page').style.display = 'block';
+        
+        // Set result values
+        const score = parseInt(document.getElementById('score').innerText);
+        const total = parseInt(document.getElementById('total-questions').innerText);
+        const percentage = Math.round((score / total) * 100);
+        
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-total').innerText = total;
+        
+        // Scroll to results
+        document.getElementById('results-page').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Handle quit quiz
+    document.getElementById('quit-quiz').addEventListener('click', function() {
+        if (confirm('Are you sure you want to quit this quiz? Your progress will be lost.')) {
+            // Stop timer
+            clearInterval(timer);
+            
+            // Hide quiz interface
+            document.getElementById('quiz-interface').style.display = 'none';
+            
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+    
+    // Handle restart quiz
+    document.getElementById('restart-quiz').addEventListener('click', function() {
+        // Get current topic
+        const topic = document.getElementById('quiz-info-topic').innerText.toLowerCase();
+        startQuiz(topic);
+    });
+    
+    // Helper function to convert to title case
+    function toTitleCase(str) {
+        return str.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+});
+</script>
+{% endblock %}

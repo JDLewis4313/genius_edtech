@@ -1,0 +1,855 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Code Editor - GeNiUS EdTech{% endblock %}
+
+{% block extra_css %}
+<style>
+    .editor-container {
+        background: var(--bg-primary);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .language-tab {
+        background: rgba(26, 31, 58, 0.8);
+        border: 2px solid var(--ni-chrome);
+        color: var(--text-secondary);
+        padding: 10px 20px;
+        border-radius: 25px;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .language-tab:hover,
+    .language-tab.active {
+        background: var(--primary-gradient);
+        color: var(--bg-primary);
+        border-color: var(--u-green);
+        transform: translateY(-2px);
+    }
+    
+    .output-panel {
+        background: var(--bg-primary);
+        border: 2px solid var(--u-green);
+        border-radius: 15px;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--u-green);
+        min-height: 300px;
+        position: relative;
+        overflow: hidden;
+        padding: 1rem;
+    }
+    
+    .output-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--primary-gradient);
+        animation: scanline 2s ease-in-out infinite;
+    }
+    
+    @keyframes scanline {
+        0%, 100% { transform: translateX(-100%); }
+        50% { transform: translateX(100%); }
+    }
+    
+    .action-btn {
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-run {
+        background: var(--primary-gradient);
+        color: var(--bg-primary);
+    }
+    
+    .btn-run:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
+    }
+    
+    .btn-clear {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        border: 2px solid var(--text-muted);
+    }
+    
+    .btn-clear:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+    }
+    
+    .btn-save {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        border: 2px solid var(--text-muted);
+    }
+    
+    .btn-save:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+    }
+    
+    .code-editor {
+        width: 100%;
+        height: 400px;
+        border-radius: 0 0 15px 15px;
+    }
+    
+    .template-card {
+        height: 100%;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    
+    .template-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    
+    .template-description {
+        color: var(--text-secondary);
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 fade-in">
+        <h1 class="text-gradient mb-3">
+            <i class="fas fa-code"></i> GeNiUS Code Lab
+        </h1>
+        <p style="color: var(--text-secondary);">Write, run, and experiment with chemistry-focused code</p>
+    </div>
+    
+    <!-- Chemistry Code Templates -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4" style="color: var(--text-primary);">
+                <i class="fas fa-flask"></i> Chemistry Code Templates
+            </h3>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card template-card" onclick="loadTemplate('molecular_weight')">
+                <div class="card-body">
+                    <h4 class="template-title">Molecular Weight Calculator</h4>
+                    <p class="template-description">Calculate molecular weights using atomic masses</p>
+                    <span class="badge bg-primary">Python</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card template-card" onclick="loadTemplate('equation_parser')">
+                <div class="card-body">
+                    <h4 class="template-title">Chemical Equation Parser</h4>
+                    <p class="template-description">Parse and analyze chemical equations</p>
+                    <span class="badge bg-warning">JavaScript</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card template-card" onclick="loadTemplate('periodic_table')">
+                <div class="card-body">
+                    <h4 class="template-title">Periodic Table Queries</h4>
+                    <p class="template-description">Query chemical elements database</p>
+                    <span class="badge bg-info">SQL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Code Editor -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4><i class="fas fa-edit"></i> Code Editor</h4>
+                        <div>
+                            <button class="language-tab active" onclick="switchLanguage('python')">Python</button>
+                            <button class="language-tab" onclick="switchLanguage('javascript')">JavaScript</button>
+                            <button class="language-tab" onclick="switchLanguage('sql')">SQL</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="editor" class="code-editor"># Welcome to GeNiUS Code Lab! 🧪🔬
+# Calculate molecular weight of water (H2O)
+
+def calculate_molecular_weight():
+    # Atomic masses (g/mol)
+    H = 1.008  # Hydrogen
+    O = 15.999 # Oxygen
+    
+    # Water molecule: H2O
+    water_mw = (2 * H) + O
+    print(f'Molecular weight of H2O: {water_mw:.3f} g/mol')
+    
+    # Calculate moles in 18g of water
+    mass = 18.0  # grams
+    moles = mass / water_mw
+    print(f'Moles in {mass}g of water: {moles:.3f} mol')
+    
+    return water_mw
+
+# Run the calculation
+calculate_molecular_weight()</div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted me-3">Language: <span id="language-indicator" class="text-u">Python</span></span>
+                            <span class="text-muted">Lines: <span id="line-count">15</span></span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="action-btn btn-run" onclick="runCode()">
+                                <i class="fas fa-play"></i> Run Code
+                            </button>
+                            <button class="action-btn btn-clear" onclick="clearEditor()">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                            <button class="action-btn btn-save" onclick="saveCode()">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Output Panel -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-terminal"></i> Output</h4>
+                </div>
+                <div class="card-body">
+                    <div class="output-panel" id="output">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span>Ready to execute your chemistry code!</span>
+                        </div>
+                        <div class="mt-4" style="color: var(--text-secondary);">
+                            <strong>Features:</strong>
+                            <ul class="mt-2">
+                                <li>Fully editable code editor</li>
+                                <li>Multiple language support</li>
+                                <li>Chemistry code templates</li>
+                                <li>Save/Load functionality</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-question-circle"></i> Help & Resources</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Chemistry Code Examples</h5>
+                            <ul>
+                                <li>Molecular weight calculation</li>
+                                <li>Balancing chemical equations</li>
+                                <li>Stoichiometry calculations</li>
+                                <li>pH and acid-base calculations</li>
+                                <li>Thermodynamics simulations</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Educational Purpose</h5>
+                            <p>
+                                This code editor is designed to help you learn chemistry concepts through coding. 
+                                By writing and executing code, you can gain a deeper understanding of chemical principles 
+                                and develop computational thinking skills.
+                            </p>
+                            <a href="{% url 'quiz:tutorials' %}" class="btn btn-primary mt-2">
+                                <i class="fas fa-book-open me-2"></i> View Tutorials
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.min.js"></script>
+<script>
+    let editor;
+    let currentLanguage = 'python';
+    
+    // Monaco Editor configuration
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+        editor = monaco.editor.create(document.getElementById('editor'), {
+            value: document.getElementById('editor').textContent,
+            language: 'python',
+            theme: 'vs-dark',
+            automaticLayout: true,
+            minimap: { enabled: true },
+            scrollBeyondLastLine: false,
+            fontSize: 14,
+            fontFamily: "'JetBrains Mono', monospace",
+            tabSize: 4,
+            insertSpaces: true,
+            wordWrap: 'on'
+        });
+        
+        // Update line count on editor change
+        editor.onDidChangeModelContent(function() {
+            updateLineCount();
+        });
+        
+        // Initial line count update
+        updateLineCount();
+    });
+    
+    // Update line count
+    function updateLineCount() {
+        if (editor) {
+            const lineCount = editor.getModel().getLineCount();
+            document.getElementById('line-count').textContent = lineCount;
+        }
+    }
+    
+    // Switch language
+    function switchLanguage(language) {
+        currentLanguage = language;
+        
+        // Update monaco language
+        monaco.editor.setModelLanguage(editor.getModel(), language);
+        
+        // Update language indicator
+        document.getElementById('language-indicator').textContent = language.charAt(0).toUpperCase() + language.slice(1);
+        
+        // Update active tab
+        document.querySelectorAll('.language-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+    
+    // Load template
+    function loadTemplate(templateName) {
+        const templates = {
+            molecular_weight: {
+                python: `# Molecular Weight Calculator
+# Calculate molecular weights from chemical formulas
+
+def get_atomic_weights():
+    """Dictionary of atomic weights for common elements"""
+    return {
+        'H': 1.008, 'C': 12.011, 'N': 14.007, 'O': 15.999,
+        'F': 18.998, 'Na': 22.990, 'Mg': 24.305, 'Al': 26.982,
+        'Si': 28.085, 'P': 30.974, 'S': 32.065, 'Cl': 35.453,
+        'K': 39.098, 'Ca': 40.078, 'Fe': 55.845, 'Cu': 63.546
+    }
+
+def calculate_molecular_weight(formula):
+    """Calculate molecular weight from chemical formula"""
+    atomic_weights = get_atomic_weights()
+    
+    # Initialize variables
+    total_weight = 0
+    i = 0
+    
+    while i < len(formula):
+        # Get element symbol
+        if i + 1 < len(formula) and formula[i+1].islower():
+            element = formula[i:i+2]
+            i += 2
+        else:
+            element = formula[i]
+            i += 1
+        
+        # Get count
+        count = ""
+        while i < len(formula) and formula[i].isdigit():
+            count += formula[i]
+            i += 1
+        
+        # Convert count to integer, default to 1 if empty
+        count = int(count) if count else 1
+        
+        # Add to total weight
+        if element in atomic_weights:
+            total_weight += atomic_weights[element] * count
+        else:
+            print(f"Warning: Element {element} not found")
+    
+    return total_weight
+
+# Test the function
+formulas = ["H2O", "NaCl", "C6H12O6", "C2H5OH"]
+for formula in formulas:
+    mw = calculate_molecular_weight(formula)
+    print(f"Molecular weight of {formula}: {mw:.3f} g/mol")`,
+                javascript: `// Molecular Weight Calculator in JavaScript
+
+const atomicWeights = {
+    'H': 1.008, 'C': 12.011, 'N': 14.007, 'O': 15.999,
+    'F': 18.998, 'Na': 22.990, 'Mg': 24.305, 'Al': 26.982,
+    'Si': 28.085, 'P': 30.974, 'S': 32.065, 'Cl': 35.453,
+    'K': 39.098, 'Ca': 40.078, 'Fe': 55.845, 'Cu': 63.546
+};
+
+function calculateMolecularWeight(formula) {
+    let totalWeight = 0;
+    let i = 0;
+    
+    while (i < formula.length) {
+        // Get element symbol
+        let element;
+        if (i + 1 < formula.length && formula[i+1].match(/[a-z]/)) {
+            element = formula.substr(i, 2);
+            i += 2;
+        } else {
+            element = formula[i];
+            i += 1;
+        }
+        
+        // Get count
+        let count = "";
+        while (i < formula.length && formula[i].match(/[0-9]/)) {
+            count += formula[i];
+            i += 1;
+        }
+        
+        // Convert count to integer, default to 1 if empty
+        count = count ? parseInt(count) : 1;
+        
+        // Add to total weight
+        if (element in atomicWeights) {
+            totalWeight += atomicWeights[element] * count;
+        } else {
+            console.warn(\`Warning: Element \${element} not found\`);
+        }
+    }
+    
+    return totalWeight;
+}
+
+// Test the function
+const formulas = ["H2O", "NaCl", "C6H12O6", "C2H5OH"];
+formulas.forEach(formula => {
+    const mw = calculateMolecularWeight(formula);
+    console.log(\`Molecular weight of \${formula}: \${mw.toFixed(3)} g/mol\`);
+});`
+            },
+            equation_parser: {
+                python: `# Chemical Equation Parser in Python
+
+def parse_chemical_equation(equation):
+    """Parse and analyze chemical equations"""
+    # Split by arrow
+    sides = equation.split('→')
+    if len(sides) != 2:
+        return "Invalid equation format"
+    
+    reactants = [r.strip() for r in sides[0].split('+')]
+    products = [p.strip() for p in sides[1].split('+')]
+    
+    return {
+        'reactants': reactants,
+        'products': products,
+        'balanced': check_balance(reactants, products)
+    }
+
+def check_balance(reactants, products):
+    """Check if the equation is balanced"""
+    # Count atoms on each side
+    reactant_atoms = count_atoms(reactants)
+    product_atoms = count_atoms(products)
+    
+    # Compare atom counts
+    return reactant_atoms == product_atoms
+
+def count_atoms(compounds):
+    """Count atoms in a list of compounds"""
+    atom_count = {}
+    
+    for compound in compounds:
+        # Extract coefficient
+        coefficient = 1
+        if compound[0].isdigit():
+            i = 0
+            coef_str = ""
+            while i < len(compound) and compound[i].isdigit():
+                coef_str += compound[i]
+                i += 1
+            coefficient = int(coef_str)
+            compound = compound[i:]
+        
+        # Parse formula
+        i = 0
+        while i < len(compound):
+            # Get element symbol
+            if i + 1 < len(compound) and compound[i+1].islower():
+                element = compound[i:i+2]
+                i += 2
+            else:
+                element = compound[i]
+                i += 1
+            
+            # Get count
+            count = ""
+            while i < len(compound) and compound[i].isdigit():
+                count += compound[i]
+                i += 1
+            
+            # Convert count to integer, default to 1 if empty
+            count = int(count) if count else 1
+            
+            # Add to atom count
+            if element in atom_count:
+                atom_count[element] += count * coefficient
+            else:
+                atom_count[element] = count * coefficient
+    
+    return atom_count
+
+# Test the parser
+equations = [
+    "2H2 + O2 → 2H2O",
+    "CH4 + 2O2 → CO2 + 2H2O",
+    "C6H12O6 + 6O2 → 6CO2 + 6H2O"
+]
+
+for eq in equations:
+    result = parse_chemical_equation(eq)
+    print(f"Equation: {eq}")
+    print(f"Reactants: {result['reactants']}")
+    print(f"Products: {result['products']}")
+    print(f"Balanced: {result['balanced']}")
+    print()`,
+                javascript: `// Chemical Equation Parser in JavaScript
+
+function parseChemicalEquation(equation) {
+    // Split by arrow
+    const sides = equation.split('→');
+    if (sides.length !== 2) {
+        return "Invalid equation format";
+    }
+    
+    const reactants = sides[0].split('+').map(r => r.trim());
+    const products = sides[1].split('+').map(p => p.trim());
+    
+    return {
+        reactants: reactants,
+        products: products,
+        balanced: checkBalance(reactants, products)
+    };
+}
+
+function checkBalance(reactants, products) {
+    // Count atoms on each side
+    const reactantAtoms = countAtoms(reactants);
+    const productAtoms = countAtoms(products);
+    
+    // Compare atom counts
+    return JSON.stringify(reactantAtoms) === JSON.stringify(productAtoms);
+}
+
+function countAtoms(compounds) {
+    const atomCount = {};
+    
+    for (const compound of compounds) {
+        // Extract coefficient
+        let coefficient = 1;
+        let formulaStart = 0;
+        
+        if (compound[0].match(/[0-9]/)) {
+            let i = 0;
+            let coefStr = "";
+            while (i < compound.length && compound[i].match(/[0-9]/)) {
+                coefStr += compound[i];
+                i++;
+            }
+            coefficient = parseInt(coefStr);
+            formulaStart = i;
+        }
+        
+        const formula = compound.substring(formulaStart);
+        
+        // Parse formula
+        let i = 0;
+        while (i < formula.length) {
+            // Get element symbol
+            let element;
+            if (i + 1 < formula.length && formula[i+1].match(/[a-z]/)) {
+                element = formula.substr(i, 2);
+                i += 2;
+            } else {
+                element = formula[i];
+                i += 1;
+            }
+            
+            // Get count
+            let count = "";
+            while (i < formula.length && formula[i].match(/[0-9]/)) {
+                count += formula[i];
+                i += 1;
+            }
+            
+            // Convert count to integer, default to 1 if empty
+            count = count ? parseInt(count) : 1;
+            
+            // Add to atom count
+            if (element in atomCount) {
+                atomCount[element] += count * coefficient;
+            } else {
+                atomCount[element] = count * coefficient;
+            }
+        }
+    }
+    
+    return atomCount;
+}
+
+// Test the parser
+const equations = [
+    "2H2 + O2 → 2H2O",
+    "CH4 + 2O2 → CO2 + 2H2O",
+    "C6H12O6 + 6O2 → 6CO2 + 6H2O"
+];
+
+for (const eq of equations) {
+    const result = parseChemicalEquation(eq);
+    console.log(\`Equation: \${eq}\`);
+    console.log(\`Reactants: \${result.reactants}\`);
+    console.log(\`Products: \${result.products}\`);
+    console.log(\`Balanced: \${result.balanced}\`);
+    console.log();
+}`
+            },
+            periodic_table: {
+                sql: `-- Periodic Table Queries
+-- Query chemical elements database
+
+-- Create a sample elements table if it doesn't exist
+CREATE TABLE IF NOT EXISTS elements (
+    atomic_number INTEGER PRIMARY KEY,
+    symbol TEXT NOT NULL,
+    name TEXT NOT NULL,
+    atomic_mass REAL NOT NULL,
+    electron_configuration TEXT,
+    group_number INTEGER,
+    period INTEGER,
+    category TEXT
+);
+
+-- Insert some sample data if the table is empty
+INSERT OR IGNORE INTO elements VALUES
+(1, 'H', 'Hydrogen', 1.008, '1s1', 1, 1, 'nonmetal'),
+(2, 'He', 'Helium', 4.0026, '1s2', 18, 1, 'noble gas'),
+(3, 'Li', 'Lithium', 6.94, '[He] 2s1', 1, 2, 'alkali metal'),
+(4, 'Be', 'Beryllium', 9.0122, '[He] 2s2', 2, 2, 'alkaline earth metal'),
+(5, 'B', 'Boron', 10.81, '[He] 2s2 2p1', 13, 2, 'metalloid'),
+(6, 'C', 'Carbon', 12.011, '[He] 2s2 2p2', 14, 2, 'nonmetal'),
+(7, 'N', 'Nitrogen', 14.007, '[He] 2s2 2p3', 15, 2, 'nonmetal'),
+(8, 'O', 'Oxygen', 15.999, '[He] 2s2 2p4', 16, 2, 'nonmetal'),
+(9, 'F', 'Fluorine', 18.998, '[He] 2s2 2p5', 17, 2, 'halogen'),
+(10, 'Ne', 'Neon', 20.180, '[He] 2s2 2p6', 18, 2, 'noble gas');
+
+-- Query 1: Find all elements with atomic number less than 10
+SELECT 
+    atomic_number,
+    symbol,
+    name,
+    atomic_mass
+FROM elements
+WHERE atomic_number < 10
+ORDER BY atomic_number;
+
+-- Query 2: Find all noble gases
+SELECT * FROM elements 
+WHERE category = 'noble gas';
+
+-- Query 3: Calculate average atomic mass by period
+SELECT 
+    period,
+    AVG(atomic_mass) as avg_mass,
+    COUNT(*) as element_count
+FROM elements 
+GROUP BY period
+ORDER BY period;
+
+-- Query 4: Find elements with atomic mass greater than the average
+SELECT
+    symbol,
+    name,
+    atomic_mass
+FROM elements
+WHERE atomic_mass > (SELECT AVG(atomic_mass) FROM elements)
+ORDER BY atomic_mass DESC;
+
+-- Query 5: Create a view for common elements in chemistry
+CREATE VIEW IF NOT EXISTS common_chemistry_elements AS
+SELECT * FROM elements
+WHERE symbol IN ('H', 'C', 'N', 'O', 'F', 'P', 'S', 'Cl');
+
+-- Query the view
+SELECT * FROM common_chemistry_elements;`
+            }
+        };
+        
+        if (templates[templateName] && templates[templateName][currentLanguage]) {
+            editor.setValue(templates[templateName][currentLanguage]);
+        } else if (templates[templateName]) {
+            // If the template exists but not for current language, switch to a language that has it
+            const availableLang = Object.keys(templates[templateName])[0];
+            switchLanguage(availableLang);
+            editor.setValue(templates[templateName][availableLang]);
+        }
+        
+        updateLineCount();
+    }
+    
+    // Run code function
+    function runCode() {
+        const code = editor.getValue();
+        const outputElement = document.getElementById('output');
+        
+        // Simulate code execution (in a real app, this would be sent to a backend)
+        outputElement.innerHTML = `
+            <div style="color: var(--u-green); margin-bottom: 10px;">
+                <i class="fas fa-play-circle"></i> Executing ${currentLanguage} code...
+            </div>
+        `;
+        
+        // Simulate execution delay
+        setTimeout(() => {
+            if (currentLanguage === 'python' && code.includes('molecular_weight')) {
+                outputElement.innerHTML += `
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+Molecular weight of H2O: 18.015 g/mol
+Moles in 18.0g of water: 0.999 mol
+
+<span style="color: var(--u-green);">✓ Code executed successfully!</span>
+                    </div>
+                `;
+            } else if (currentLanguage === 'python' && code.includes('chemical_equation')) {
+                outputElement.innerHTML += `
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+Equation: 2H2 + O2 → 2H2O
+Reactants: ['2H2', 'O2']
+Products: ['2H2O']
+Balanced: True
+
+Equation: CH4 + 2O2 → CO2 + 2H2O
+Reactants: ['CH4', '2O2']
+Products: ['CO2', '2H2O']
+Balanced: True
+
+Equation: C6H12O6 + 6O2 → 6CO2 + 6H2O
+Reactants: ['C6H12O6', '6O2']
+Products: ['6CO2', '6H2O']
+Balanced: True
+
+<span style="color: var(--u-green);">✓ Code executed successfully!</span>
+                    </div>
+                `;
+            } else if (currentLanguage === 'javascript' && code.includes('Molecular')) {
+                outputElement.innerHTML += `
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+Molecular weight of H2O: 18.015 g/mol
+Molecular weight of NaCl: 58.440 g/mol
+Molecular weight of C6H12O6: 180.156 g/mol
+Molecular weight of C2H5OH: 46.069 g/mol
+
+<span style="color: var(--u-green);">✓ Code executed successfully!</span>
+                    </div>
+                `;
+            } else if (currentLanguage === 'sql') {
+                outputElement.innerHTML += `
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+-- Query 1 Results:
+atomic_number | symbol | name      | atomic_mass
+-------------+--------+-----------+------------
+1            | H      | Hydrogen  | 1.008
+2            | He     | Helium    | 4.0026
+3            | Li     | Lithium   | 6.94
+4            | Be     | Beryllium | 9.0122
+5            | B      | Boron     | 10.81
+6            | C      | Carbon    | 12.011
+7            | N      | Nitrogen  | 14.007
+8            | O      | Oxygen    | 15.999
+9            | F      | Fluorine  | 18.998
+
+-- Query 2 Results:
+atomic_number | symbol | name   | atomic_mass | electron_configuration | group_number | period | category
+-------------+--------+--------+-------------+-----------------------+-------------+--------+----------
+2            | He     | Helium | 4.0026      | 1s2                   | 18          | 1      | noble gas
+10           | Ne     | Neon   | 20.180      | [He] 2s2 2p6          | 18          | 2      | noble gas
+
+<span style="color: var(--u-green);">✓ SQL queries executed successfully!</span>
+                    </div>
+                `;
+            } else {
+                outputElement.innerHTML += `
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+<span style="color: var(--u-green);">✓ Code executed successfully!</span>
+
+(Output simulated for demonstration purposes)
+                    </div>
+                `;
+            }
+        }, 1500);
+    }
+    
+    // Clear editor function
+    function clearEditor() {
+        if (confirm("Are you sure you want to clear the editor? All code will be lost.")) {
+            editor.setValue("");
+            document.getElementById('output').innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span>Ready to execute your chemistry code!</span>
+                </div>
+            `;
+        }
+    }
+    
+    // Save code function
+    function saveCode() {
+        const code = editor.getValue();
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chemistry_code.${currentLanguage === 'javascript' ? 'js' : currentLanguage}`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+{% endblock %}

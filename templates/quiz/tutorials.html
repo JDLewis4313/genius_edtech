@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}STEM Coding Tutorials - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10">
+                <h1 class="hero-title">
+                    <span style="background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;">STEM</span> 
+                    Coding Tutorials
+                </h1>
+                <p class="lead fs-4 mb-5">
+                    Bridge the gap between Computer Science and STEM subjects. Learn to code while exploring Chemistry, Biology, Physics, and Environmental Science.
+                </p>
+                
+                <!-- Filter Buttons -->
+                <div class="mb-4">
+                    <button class="filter-btn active" data-filter="all">All Subjects</button>
+                    <button class="filter-btn" data-filter="chemistry">Chemistry</button>
+                    <button class="filter-btn" data-filter="biology">Biology</button>
+                    <button class="filter-btn" data-filter="physics">Physics</button>
+                    <button class="filter-btn" data-filter="environmental">Environmental</button>
+                    <button class="filter-btn" data-filter="computer-science">Computer Science</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STEM Subject Overview -->
+<div class="container py-5">
+    <div class="row text-center mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">Learn Coding Through Science</h2>
+            <p class="lead">Each tutorial combines programming concepts with real scientific applications, following NGSS standards.</p>
+        </div>
+    </div>
+    
+    <div class="row g-4 mb-5">
+        <!-- Chemistry -->
+        <div class="col-lg-3 col-md-6 fade-in stagger-1">
+            <div class="card subject-card" style="border-color: #ff6b6b;">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-flask" style="font-size: 3rem; color: #ff6b6b; margin-bottom: 20px;"></i>
+                    <h4 class="card-title">Chemistry</h4>
+                    <p class="card-text">Molecular simulations, stoichiometry calculators, periodic table APIs, and chemical reaction modeling.</p>
+                    <span class="badge bg-primary">12 Tutorials</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biology -->
+        <div class="col-lg-3 col-md-6 fade-in stagger-2">
+            <div class="card subject-card" style="border-color: #4ecdc4;">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-dna" style="font-size: 3rem; color: #4ecdc4; margin-bottom: 20px;"></i>
+                    <h4 class="card-title">Biology</h4>
+                    <p class="card-text">DNA sequence analysis, population genetics, ecosystem modeling, and bioinformatics tools.</p>
+                    <span class="badge bg-primary">10 Tutorials</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physics -->
+        <div class="col-lg-3 col-md-6 fade-in stagger-3">
+            <div class="card subject-card" style="border-color: #45b7d1;">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-atom" style="font-size: 3rem; color: #45b7d1; margin-bottom: 20px;"></i>
+                    <h4 class="card-title">Physics</h4>
+                    <p class="card-text">Motion simulations, wave analysis, quantum mechanics visualizations, and data analysis.</p>
+                    <span class="badge bg-primary">8 Tutorials</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Science -->
+        <div class="col-lg-3 col-md-6 fade-in stagger-4">
+            <div class="card subject-card" style="border-color: #96ceb4;">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-leaf" style="font-size: 3rem; color: #96ceb4; margin-bottom: 20px;"></i>
+                    <h4 class="card-title">Environmental</h4>
+                    <p class="card-text">Climate data analysis, pollution tracking, renewable energy calculations, and GIS mapping.</p>
+                    <span class="badge bg-primary">9 Tutorials</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Tutorials Section -->
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-5">Featured Tutorials</h2>
+        </div>
+    </div>
+    
+    <div class="row g-4" id="tutorials-container">
+        <!-- Chemistry Tutorial -->
+        <div class="col-lg-4 col-md-6 tutorial-item" data-subject="chemistry">
+            <div class="card" style="border-left: 4px solid #4CAF50;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <i class="fas fa-flask" style="font-size: 3rem; color: #ff6b6b;"></i>
+                        <span style="padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(76, 175, 80, 0.2); color: #4CAF50; border: 1px solid #4CAF50;">Beginner</span>
+                    </div>
+                    <h5 class="card-title">Molecular Weight Calculator</h5>
+                    <p class="card-text">Build a Python program to calculate molecular weights using chemical formulas and the periodic table API.</p>
+                    
+                    <div class="mb-3">
+                        <strong>What you'll learn:</strong>
+                        <ul class="mt-2">
+                            <li>Dictionary data structures</li>
+                            <li>String parsing</li>
+                            <li>API integration</li>
+                            <li>Chemical formula interpretation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(52, 144, 220, 0.2); color: #3490dc; border: 1px solid #3490dc;">Python</span>
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(52, 144, 220, 0.2); color: #3490dc; border: 1px solid #3490dc;">Requests</span>
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(52, 144, 220, 0.2); color: #3490dc; border: 1px solid #3490dc;">JSON</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">⏱️ 45 minutes</small>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Start Tutorial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biology Tutorial -->
+        <div class="col-lg-4 col-md-6 tutorial-item" data-subject="biology">
+            <div class="card" style="border-left: 4px solid #FF9800;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <i class="fas fa-dna" style="font-size: 3rem; color: #4ecdc4;"></i>
+                        <span style="padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255, 152, 0, 0.2); color: #FF9800; border: 1px solid #FF9800;">Intermediate</span>
+                    </div>
+                    <h5 class="card-title">DNA Sequence Analyzer</h5>
+                    <p class="card-text">Create a bioinformatics tool to analyze DNA sequences, find patterns, and identify genetic markers.</p>
+                    
+                    <div class="mb-3">
+                        <strong>What you'll learn:</strong>
+                        <ul class="mt-2">
+                            <li>File I/O operations</li>
+                            <li>Regular expressions</li>
+                            <li>Sequence alignment</li>
+                            <li>Data visualization</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(52, 144, 220, 0.2); color: #3490dc; border: 1px solid #3490dc;">Python</span>
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(52, 144, 220, 0.2); color: #3490dc; border: 1px solid #3490dc;">Biopython</span>
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(17, 125, 171, 0.2); color: #117dab; border: 1px solid #117dab;">Matplotlib</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">⏱️ 90 minutes</small>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Start Tutorial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physics Tutorial -->
+        <div class="col-lg-4 col-md-6 tutorial-item" data-subject="physics">
+            <div class="card" style="border-left: 4px solid #FF9800;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <i class="fas fa-wave-square" style="font-size: 3rem; color: #45b7d1;"></i>
+                        <span style="padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255, 152, 0, 0.2); color: #FF9800; border: 1px solid #FF9800;">Intermediate</span>
+                    </div>
+                    <h5 class="card-title">Wave Interference Simulator</h5>
+                    <p class="card-text">Build an interactive wave physics simulator to visualize interference patterns and wave behavior.</p>
+                    
+                    <div class="mb-3">
+                        <strong>What you'll learn:</strong>
+                        <ul class="mt-2">
+                            <li>Mathematical modeling</li>
+                            <li>Animation techniques</li>
+                            <li>Interactive plotting</li>
+                            <li>Physics equations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(52, 144, 220, 0.2); color: #3490dc; border: 1px solid #3490dc;">Python</span>
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(79, 111, 182, 0.2); color: #4f6fb6; border: 1px solid #4f6fb6;">NumPy</span>
+                        <span style="padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin: 2px; display: inline-block; background: rgba(17, 125, 171, 0.2); color: #117dab; border: 1px solid #117dab;">Matplotlib</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">⏱️ 75 minutes</small>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Start Tutorial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h3 class="card-title mb-3">Ready to Start Your STEM Coding Journey?</h3>
+                    <p class="card-text mb-4">
+                        Join thousands of students who are learning to code through science. 
+                        Choose your path and start building real-world applications today!
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="{% url 'chemistry:calculator' %}" class="btn btn-primary">
+                            <i class="fas fa-calculator me-2"></i>
+                            Try Our Tools
+                        </a>
+                        <a href="{% url 'core:contact' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope me-2"></i>
+                            Get Help
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const tutorialItems = document.querySelectorAll('.tutorial-item');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                const filter = this.getAttribute('data-filter');
+
+                tutorialItems.forEach(item => {
+                    if (filter === 'all') {
+                        item.style.display = 'block';
+                        item.style.animation = 'fadeInUp 0.5s ease forwards';
+                    } else {
+                        const subjects = item.getAttribute('data-subject');
+                        if (subjects && subjects.includes(filter)) {
+                            item.style.display = 'block';
+                            item.style.animation = 'fadeInUp 0.5s ease forwards';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}GeNiUS EdTech - Transforming STEM Education{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="hero-title">
+                    <span class="genius-highlight">GeNiUS</span> EdTech
+                </h1>
+                <p class="hero-subtitle">
+                    Transforming STEM education through innovative technology and real-world connections
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'chemistry:dashboard' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-flask"></i> Explore Tools
+                    </a>
+                    <a href="{% url 'quiz:tutorials' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-graduation-cap"></i> View Tutorials
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Educational Tools Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="mb-4">Educational Tools</h2>
+                <p class="lead">Comprehensive chemistry learning platform with advanced tools</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Chemistry Calculator -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-calculator feature-icon"></i>
+                        </div>
+                        <h5 class="card-title">Chemistry Calculator</h5>
+                        <p class="card-text mb-4">
+                            Advanced calculations for molar mass, molarity, gas laws, 
+                            pH, thermodynamics, and nuclear chemistry.
+                        </p>
+                        <a href="{% url 'chemistry:calculator' %}" class="btn btn-primary">
+                            Try Calculator
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quiz System -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-question-circle feature-icon"></i>
+                        </div>
+                        <h5 class="card-title">Interactive Quizzes</h5>
+                        <p class="card-text mb-4">
+                            Comprehensive quiz system with progress tracking, 
+                            multiple question types, and detailed analytics.
+                        </p>
+                        <a href="{% url 'quiz:quiz' %}" class="btn btn-primary">
+                            Start Quiz
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Molecular Viewer -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-cube feature-icon"></i>
+                        </div>
+                        <h5 class="card-title">3D Molecular Viewer</h5>
+                        <p class="card-text mb-4">
+                            Interactive 3D visualization of molecular structures 
+                            with real-time manipulation and educational content.
+                        </p>
+                        <a href="{% url 'chemistry:molecular_viewer' %}" class="btn btn-primary">
+                            View Molecules
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Code Editor -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-code feature-icon"></i>
+                        </div>
+                        <h5 class="card-title">Code Editor</h5>
+                        <p class="card-text mb-4">
+                            Interactive coding environment for chemistry simulations,
+                            data analysis, and scientific computing.
+                        </p>
+                        <a href="{% url 'code_editor:code_editor' %}" class="btn btn-primary">
+                            Open Editor
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="py-5 bg-glass">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="mb-4">Our Mission</h2>
+                <p class="lead">Empowering socioeconomically disadvantaged students to master complex scientific concepts through accessible, interactive learning platforms.</p>
+                <p>GeNiUS EdTech bridges educational gaps by providing free, cutting-edge tools that convert abstract concepts into engaging, practical applications, enhancing student performance through:</p>
+                <ul class="mt-4">
+                    <li class="mb-2"><strong class="text-u">Molecular simulations</strong> that visualize complex chemistry</li>
+                    <li class="mb-2"><strong class="text-s">Virtual laboratories</strong> for hands-on learning</li>
+                    <li class="mb-2"><strong class="text-er">Adaptive learning systems</strong> that personalize education</li>
+                    <li class="mb-2"><strong class="text-ni">Real-world connections</strong> to research institutions</li>
+                </ul>
+                <a href="{% url 'core:about' %}" class="btn btn-primary mt-3">Learn More About Our Mission</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-4">
+                        <div class="ratio ratio-16x9 mb-4">
+                            <img src="{% static 'images/mission-image.jpg' %}" alt="Students learning with GeNiUS EdTech" class="rounded" style="object-fit: cover;">
+                        </div>
+                        <blockquote class="blockquote mb-0" style="border-left: 4px solid var(--u-green); padding-left: 20px;">
+                            <p>Our vision encompasses creating a sustainable pipeline of diverse STEM professionals who will transform their communities and industries.</p>
+                            <footer class="blockquote-footer text-u">GeNiUS EdTech Vision</footer>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="card border-0">
+                    <div class="card-body p-5">
+                        <h3 class="card-title mb-3">Ready to Transform STEM Education?</h3>
+                        <p class="card-text mb-4">
+                            Join thousands of students who are mastering chemistry and programming with GeNiUS EdTech.
+                            Explore our tools, take a quiz, or build your own science application today!
+                        </p>
+                        <div class="d-flex gap-3 justify-content-center flex-wrap">
+                            <a href="{% url 'chemistry:dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-flask me-2"></i>
+                                Explore Chemistry Tools
+                            </a>
+                            <a href="{% url 'core:contact' %}" class="btn" style="border: 2px solid var(--u-green); color: var(--u-green); background: transparent; padding: 12px 30px; border-radius: 25px;">
+                                <i class="fas fa-envelope me-2"></i>
+                                Contact Us
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,3 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
+def code_editor(request):
+    return render(request, 'code_editor/code_editor.html')

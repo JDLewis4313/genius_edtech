@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GeNiUS EdTech - Where Chemistry Meets Code{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            /* GeNiUS Element Colors */
+            --ge-silver: #C8D5E3;        /* Germanium - Metallic silver-blue */
+            --ni-chrome: #8FA8B2;        /* Nickel - Chrome metallic */
+            --u-green: #00B894;          /* Uranium - Vibrant radioactive green */
+            --s-yellow: #FDCB6E;         /* Sulfur - Bright yellow */
+            --er-pink: #E17055;          /* Erbium - Pink-orange rare earth */
+            
+            /* Enhanced Palette */
+            --primary-gradient: linear-gradient(135deg, var(--u-green) 0%, var(--s-yellow) 100%);
+            --secondary-gradient: linear-gradient(135deg, var(--ni-chrome) 0%, var(--ge-silver) 100%);
+            --accent-gradient: linear-gradient(135deg, var(--er-pink) 0%, var(--s-yellow) 100%);
+            --dark-gradient: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            
+            /* Semantic Colors */
+            --bg-primary: #0a0e27;       /* Deep space blue */
+            --bg-secondary: #1a1f3a;     /* Lighter space blue */
+            --bg-card: rgba(26, 31, 58, 0.8);
+            --text-primary: #ffffff;
+            --text-secondary: var(--ge-silver);
+            --text-muted: #6c7293;
+            
+            /* Element-specific accents */
+            --genius-g: var(--u-green);   /* G for Genius */
+            --genius-e: var(--er-pink);   /* E for Ed */
+            --genius-n: var(--ni-chrome); /* N for Ni */
+            --genius-i: var(--s-yellow);  /* I for interactive */
+            --genius-u: var(--u-green);   /* U for Uranium */
+            --genius-s: var(--s-yellow);  /* S for Sulfur */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0, 184, 148, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 40%, rgba(253, 203, 110, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(143, 168, 178, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(225, 112, 85, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundFlow 20s ease-in-out infinite;
+        }
+        
+        @keyframes backgroundFlow {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(90deg); }
+            50% { transform: scale(1.05) rotate(180deg); }
+            75% { transform: scale(1.15) rotate(270deg); }
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            background: rgba(10, 14, 39, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 3px solid;
+            border-image: var(--primary-gradient) 1;
+            box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: transparent !important;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: none;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+        
+        .genius-logo {
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .genius-text .letter-g { color: var(--genius-g); }
+        .genius-text .letter-e { color: var(--genius-e); }
+        .genius-text .letter-n { color: var(--genius-n); }
+        .genius-text .letter-i { color: var(--genius-i); }
+        .genius-text .letter-u { color: var(--genius-u); }
+        .genius-text .letter-s { color: var(--genius-s); }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 12px 20px !important;
+            margin: 0 5px;
+            border-radius: 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+        
+        .nav-link:hover {
+            color: var(--bg-primary) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);
+        }
+        
+        .nav-link:hover::before {
+            left: 0;
+        }
+        
+        .dropdown-menu {
+            background: rgba(10, 14, 39, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--u-green) !important;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+        }
+        
+        .dropdown-item {
+            color: var(--text-secondary) !important;
+            padding: 12px 25px;
+            margin: 5px 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--primary-gradient) !important;
+            color: var(--bg-primary) !important;
+            transform: translateX(10px);
+        }
+        
+        /* Card Styling */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            padding: 2px;
+            background: var(--primary-gradient);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 184, 148, 0.2);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card-header {
+            background: var(--primary-gradient) !important;
+            color: var(--bg-primary) !important;
+            font-weight: 700;
+            border: none;
+            border-radius: 18px 18px 0 0 !important;
+            padding: 20px 25px;
+        }
+        
+        /* Button Styling */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: var(--bg-primary);
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 25px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--s-yellow) 0%, var(--er-pink) 100%);
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 184, 148, 0.4);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover::before {
+            left: 0;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            border: 2px solid var(--ni-chrome);
+            color: var(--bg-primary);
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--accent-gradient);
+            border-color: var(--er-pink);
+            transform: translateY(-2px);
+            color: var(--bg-primary);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+            position: relative;
+        }
+        
+        .hero-title .genius-highlight {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        /* Element Badge Styling */
+        .element-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            border: 2px solid;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .element-ge {
+            border-color: var(--ge-silver);
+            color: var(--ge-silver);
+            background: rgba(200, 213, 227, 0.1);
+        }
+        
+        .element-ni {
+            border-color: var(--ni-chrome);
+            color: var(--ni-chrome);
+            background: rgba(143, 168, 178, 0.1);
+        }
+        
+        .element-u {
+            border-color: var(--u-green);
+            color: var(--u-green);
+            background: rgba(0, 184, 148, 0.1);
+        }
+        
+        .element-s {
+            border-color: var(--s-yellow);
+            color: var(--s-yellow);
+            background: rgba(253, 203, 110, 0.1);
+        }
+        
+        .element-er {
+            border-color: var(--er-pink);
+            color: var(--er-pink);
+            background: rgba(225, 112, 85, 0.1);
+        }
+        
+        .element-badge:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Feature Cards */
+        .feature-card {
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+        
+        /* Text Styling */
+        .card-title {
+            color: var(--text-primary) !important;
+            font-weight: 600 !important;
+        }
+        
+        .card-text {
+            color: var(--text-secondary) !important;
+            line-height: 1.5 !important;
+        }
+        
+        .card-body {
+            color: var(--text-primary) !important;
+        }
+        
+        .card-body h1, .card-body h2, .card-body h3, .card-body h4, .card-body h5, .card-body h6 {
+            color: var(--text-primary) !important;
+        }
+        
+        .card-body p {
+            color: var(--text-secondary) !important;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--bg-primary);
+            border-top: 3px solid;
+            border-image: var(--primary-gradient) 1;
+            padding: 4rem 0 2rem;
+            margin-top: 6rem;
+            position: relative;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-link:hover {
+            color: var(--u-green);
+            transform: translateX(5px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            
+            .element-badge {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Utility Classes */
+        .text-gradient {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .bg-glass {
+            background: rgba(26, 31, 58, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .border-glow {
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.3);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* Loading animations */
+        .fade-in {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        
+        /* Genius branding elements */
+        .genius-element {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .genius-element::after {
+            content: attr(data-element);
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6em;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        
+        /* Form Styling */
+        .form-label {
+            color: var(--text-primary) !important;
+            font-weight: 500 !important;
+        }
+        
+        .form-control {
+            background: rgba(26, 31, 58, 0.8) !important;
+            border: 2px solid var(--ni-chrome) !important;
+            color: var(--text-primary) !important;
+            border-radius: 10px !important;
+        }
+        
+        .form-control:focus {
+            background: rgba(26, 31, 58, 0.9) !important;
+            border-color: var(--u-green) !important;
+            box-shadow: 0 0 15px rgba(0, 184, 148, 0.3) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted) !important;
+        }
+        
+        .form-select {
+            background: rgba(26, 31, 58, 0.8) !important;
+            border: 2px solid var(--ni-chrome) !important;
+            color: var(--text-primary) !important;
+            border-radius: 10px !important;
+        }
+        
+        .form-select:focus {
+            background: rgba(26, 31, 58, 0.9) !important;
+            border-color: var(--u-green) !important;
+            box-shadow: 0 0 15px rgba(0, 184, 148, 0.3) !important;
+            color: var(--text-primary) !important;
+        }
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'core:home' %}">
+                <span class="genius-logo">
+                    <i class="fas fa-atom"></i>
+                </span>
+                <span class="genius-text">
+                    <span class="genius-element letter-g" data-element="Ge">G</span><span class="genius-element letter-e" data-element="Er">e</span><span class="genius-element letter-n" data-element="Ni">N</span><span class="genius-element letter-i" data-element="⚡">i</span><span class="genius-element letter-u" data-element="U">U</span><span class="genius-element letter-s" data-element="S">S</span>
+                </span>
+                <span style="margin-left: 10px; font-weight: 400; font-size: 0.8em;">Ed Tech</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'quiz' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-graduation-cap"></i> Education
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'quiz:tutorials' %}">
+                                    <i class="fas fa-book-open" style="color: var(--u-green);"></i> Tutorials
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'quiz:quiz' %}">
+                                    <i class="fas fa-question-circle" style="color: var(--s-yellow);"></i> Quiz System
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'chemistry' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-flask"></i> Chem Lab
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'chemistry:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt" style="color: var(--s-yellow);"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'chemistry:calculator' %}">
+                                    <i class="fas fa-calculator" style="color: var(--er-pink);"></i> Calculator
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'chemistry:molecular_viewer' %}">
+                                    <i class="fas fa-atom" style="color: var(--ni-chrome);"></i> Molecular Viewer
+                                </a>
+                            </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'chemistry:periodic_table' %}">
+                <i class="fas fa-table" style="color: var(--u-green);"></i> Periodic Table
+            </a>
+        </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'code_editor' in request.path %}active{% endif %}" href="{% url 'code_editor:code_editor' %}">
+                            <i class="fas fa-code"></i> Code Editor
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">
+                            <i class="fas fa-info-circle"></i> About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">
+                            <i class="fas fa-envelope"></i> Contact
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main style="padding-top: 90px;" class="fade-in">
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-glow bg-glass" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 fade-in stagger-1">
+                    <h5 class="text-gradient mb-4">
+                        <i class="fas fa-atom"></i>
+                        GeNiUS Ed Tech
+                    </h5>
+                    <p class="mb-4" style="color: var(--text-secondary); line-height: 1.6;">
+                        Transforming STEM education through innovative technology and real-world connections, empowering socioeconomically disadvantaged students to master complex scientific concepts.
+                    </p>
+                    <div class="mb-4">
+                        <span class="element-badge element-ge">Ge - Germanium</span>
+                        <span class="element-badge element-ni">Ni - Nickel</span>
+                        <span class="element-badge element-u">U - Uranium</span>
+                        <span class="element-badge element-s">S - Sulfur</span>
+                    </div>
+                </div>
+                <div class="col-md-4 fade-in stagger-2">
+                    <h5 class="text-gradient mb-4">Quick Access</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <a href="{% url 'code_editor:code_editor' %}" class="footer-link">
+                                <i class="fas fa-code"></i> Code Editor
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="{% url 'quiz:tutorials' %}" class="footer-link">
+                                <i class="fas fa-graduation-cap"></i> Learning Tutorials
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="{% url 'chemistry:calculator' %}" class="footer-link">
+                                <i class="fas fa-calculator"></i> Chemistry Calculator
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="{% url 'chemistry:molecular_viewer' %}" class="footer-link">
+                                <i class="fas fa-atom"></i> 3D Molecular Viewer
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-4 fade-in stagger-3">
+                    <h5 class="text-gradient mb-4">Our Mission</h5>
+                    <div style="color: var(--text-secondary);">
+                        <p>We provide free, cutting-edge tools that convert abstract concepts into engaging, practical applications, enhancing student performance through:</p>
+                        <ul>
+                            <li>Molecular simulations</li>
+                            <li>Virtual laboratories</li>
+                            <li>Adaptive learning systems</li>
+                            <li>Real-world connections</li>
+                        </ul>
+                        
+                        <div class="mt-4 p-3 bg-glass border-glow" style="border-radius: 10px;">
+                            <small>
+                                <i class="fas fa-flask" style="color: var(--u-green);"></i>
+                                <strong>Educational Philosophy:</strong><br>
+                                "Every element tells a story, every line of code solves a problem. 
+                                Together, they create genius."
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border: 1px solid var(--u-green); margin: 3rem 0 2rem 0; opacity: 0.3;">
+            
+            <div class="row fade-in stagger-4">
+                <div class="col-12 text-center">
+                    <p class="mb-2" style="color: var(--text-secondary);">
+                        <i class="fas fa-heart" style="color: var(--er-pink);"></i>
+                        Crafted with passion for innovative STEM education
+                        <i class="fas fa-heart" style="color: var(--er-pink);"></i>
+                    </p>
+                    <p class="mb-0">
+                        <small style="color: var(--text-muted);">
+                            &copy; {% now "Y" %} GeNiUS Ed Tech. Empowering the next generation of scientist-programmers.
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // GeNiUS Ed Tech Interactive Effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navbar scroll effect
+            window.addEventListener('scroll', function() {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 50) {
+                    navbar.style.background = 'rgba(10, 14, 39, 0.98)';
+                    navbar.style.boxShadow = '0 8px 32px rgba(0, 184, 148, 0.3)';
+                } else {
+                    navbar.style.background = 'rgba(10, 14, 39, 0.95)';
+                    navbar.style.boxShadow = '0 8px 32px rgba(0, 184, 148, 0.2)';
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
