@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ topic.title }} - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 fade-in">
+        <h1 class="text-gradient mb-3">
+            <i class="fas fa-list-ul"></i> {{ topic.title }}
+        </h1>
+        <p style="color: var(--text-secondary);">{{ topic.description }}</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-book"></i> Learning Content</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Introduction to {{ topic.title }}</h5>
+                        <p>This tutorial covers the fundamental concepts of {{ topic.title|lower }}.</p>
+                        
+                        <!-- Placeholder content - would be replaced with actual tutorial content -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> This is a placeholder for the actual tutorial content.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-question-circle"></i> Practice Questions</h4>
+                </div>
+                <div class="card-body">
+                    <p>Test your knowledge with these sample questions:</p>
+                    
+                    {% for question in questions|slice:":3" %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>{{ forloop.counter }}. {{ question.text }}</h6>
+                            <ul class="list-unstyled">
+                                {% for choice in question.choices.all %}
+                                <li>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q{{ question.id }}" id="q{{ question.id }}_{{ choice.id }}" disabled>
+                                        <label class="form-check-label" for="q{{ question.id }}_{{ choice.id }}">
+                                            {{ choice.text }}
+                                        </label>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'quiz:take_quiz' topic.id %}" class="btn btn-primary">
+                            <i class="fas fa-play-circle me-2"></i> Take Full Quiz
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Topic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-u">Module</h6>
+                        <p>{{ topic.module.title }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-s">Difficulty</h6>
+                        <p>{{ topic.difficulty|title }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-er">Questions</h6>
+                        <p>{{ questions.count }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-link"></i> Related Topics</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for related_topic in topic.module.topics.all %}
+                            {% if related_topic.id != topic.id %}
+                            <li class="list-group-item bg-transparent border-secondary">
+                                <a href="{% url 'quiz:topic_detail' related_topic.id %}" style="color: var(--text-secondary);">
+                                    {{ related_topic.title }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

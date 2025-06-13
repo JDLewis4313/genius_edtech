@@ -17,7 +17,7 @@ class Topic(models.Model):
     """Topic within a module containing questions"""
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='topics')
     title = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     order = models.IntegerField(default=1)
     
     def __str__(self):
@@ -34,9 +34,16 @@ class Question(models.Model):
         ('hard', 'Hard'),
     ]
     
+    TYPE_CHOICES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+        ('short_answer', 'Short Answer'),
+    ]
+    
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
+    question_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='multiple_choice')
     explanation = models.TextField(blank=True)
     
     def __str__(self):
