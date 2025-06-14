@@ -7,7 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('chemistry/', include('chemistry.urls')),
-    path('quiz/', include('quiz.urls')),
+    path('quiz/', include('quiz.urls', namespace='quiz')),
     path('code-editor/', include('code_editor.urls')),
     path('users/', include('users.urls')),
 ]

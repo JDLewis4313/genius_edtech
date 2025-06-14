@@ -1,48 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Interactive Periodic Table - GeNiUS Ed Tech{% endblock %}
+{% block title %}Interactive Periodic Table - GeNiUS EdTech{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Periodic Table Specific Styling */
+    /* Periodic Table Container */
+    .periodic-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Periodic Table Grid */
     .periodic-table {
         display: grid;
         grid-template-columns: repeat(18, 1fr);
-        gap: 3px;
-        margin-bottom: 20px;
-        grid-template-rows: repeat(7, auto) 10px repeat(2, auto);
+        gap: 2px;
+        margin: 20px 0;
+        position: relative;
     }
     
+    /* Element Styling */
     .element {
         aspect-ratio: 1;
         border: 1px solid rgba(255,255,255,0.1);
-        padding: 4px;
+        padding: 2px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
         text-align: center;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        border-radius: 8px;
-        background: var(--bg-card);
+        justify-content: center;
+        align-items: center;
+        border-radius: 4px;
+        background: rgba(26, 31, 58, 0.8);
         backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
     }
     
     .element:hover {
-        transform: scale(1.1);
-        z-index: 1;
-        box-shadow: 0 0 20px rgba(0, 184, 148, 0.3);
+        transform: scale(1.15);
+        z-index: 10;
+        box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
         border-color: var(--u-green);
     }
     
+    .element.highlighted {
+        animation: pulse 1s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
     .atomic-number { 
-        font-size: 11px;
-        align-self: flex-start;
+        font-size: 10px;
         color: var(--text-secondary);
+        line-height: 1;
     }
     
     .symbol { 
-        font-size: 16px; 
+        font-size: 20px; 
         font-weight: bold;
         margin: 2px 0;
         color: var(--text-primary);
@@ -50,113 +70,165 @@
     
     .name { 
         font-size: 9px;
-        margin-bottom: 2px;
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
         color: var(--text-secondary);
     }
     
     .mass { 
-        font-size: 9px;
+        font-size: 8px;
         color: var(--text-muted);
     }
     
-    /* Element Categories */
+    /* Element Categories with GeNiUS color scheme */
     .alkali-metal { 
-        background: rgba(255, 205, 210, 0.2); 
-        color: #ffcdd2;
+        background: linear-gradient(135deg, rgba(255, 94, 98, 0.2), rgba(255, 94, 98, 0.1));
+        border-color: rgba(255, 94, 98, 0.3);
     }
     .alkaline-earth { 
-        background: rgba(255, 224, 178, 0.2);
-        color: #ffe0b2;
+        background: linear-gradient(135deg, rgba(255, 206, 84, 0.2), rgba(255, 206, 84, 0.1));
+        border-color: rgba(255, 206, 84, 0.3);
     }
     .transition-metal { 
-        background: rgba(255, 249, 196, 0.2);
-        color: #fff9c4;
+        background: linear-gradient(135deg, rgba(255, 154, 0, 0.2), rgba(255, 154, 0, 0.1));
+        border-color: rgba(255, 154, 0, 0.3);
     }
     .post-transition { 
-        background: rgba(200, 230, 201, 0.2);
-        color: #c8e6c9;
+        background: linear-gradient(135deg, rgba(0, 184, 148, 0.2), rgba(0, 184, 148, 0.1));
+        border-color: rgba(0, 184, 148, 0.3);
     }
     .metalloid { 
-        background: rgba(178, 223, 219, 0.2);
-        color: #b2dfdb;
+        background: linear-gradient(135deg, rgba(0, 163, 191, 0.2), rgba(0, 163, 191, 0.1));
+        border-color: rgba(0, 163, 191, 0.3);
     }
     .nonmetal { 
-        background: rgba(187, 222, 251, 0.2);
-        color: #bbdefb;
+        background: linear-gradient(135deg, rgba(89, 151, 255, 0.2), rgba(89, 151, 255, 0.1));
+        border-color: rgba(89, 151, 255, 0.3);
+    }
+    .halogen { 
+        background: linear-gradient(135deg, rgba(155, 89, 255, 0.2), rgba(155, 89, 255, 0.1));
+        border-color: rgba(155, 89, 255, 0.3);
     }
     .noble-gas { 
-        background: rgba(225, 190, 231, 0.2);
-        color: #e1bee7;
+        background: linear-gradient(135deg, rgba(255, 89, 205, 0.2), rgba(255, 89, 205, 0.1));
+        border-color: rgba(255, 89, 205, 0.3);
     }
     .lanthanide { 
-        background: rgba(248, 187, 208, 0.2);
-        color: #f8bbd0;
+        background: linear-gradient(135deg, rgba(255, 138, 138, 0.2), rgba(255, 138, 138, 0.1));
+        border-color: rgba(255, 138, 138, 0.3);
     }
     .actinide { 
-        background: rgba(255, 204, 188, 0.2);
-        color: #ffccbc;
+        background: linear-gradient(135deg, rgba(255, 177, 138, 0.2), rgba(255, 177, 138, 0.1));
+        border-color: rgba(255, 177, 138, 0.3);
     }
 
+    /* Grid positioning for specific elements */
+    .period-1 { grid-row: 1; }
+    .period-2 { grid-row: 2; }
+    .period-3 { grid-row: 3; }
+    .period-4 { grid-row: 4; }
+    .period-5 { grid-row: 5; }
+    .period-6 { grid-row: 6; }
+    .period-7 { grid-row: 7; }
+    .period-8 { grid-row: 9; } /* Lanthanides */
+    .period-9 { grid-row: 10; } /* Actinides */
+    
+    .group-1 { grid-column: 1; }
+    .group-2 { grid-column: 2; }
+    .group-3 { grid-column: 3; }
+    .group-4 { grid-column: 4; }
+    .group-5 { grid-column: 5; }
+    .group-6 { grid-column: 6; }
+    .group-7 { grid-column: 7; }
+    .group-8 { grid-column: 8; }
+    .group-9 { grid-column: 9; }
+    .group-10 { grid-column: 10; }
+    .group-11 { grid-column: 11; }
+    .group-12 { grid-column: 12; }
+    .group-13 { grid-column: 13; }
+    .group-14 { grid-column: 14; }
+    .group-15 { grid-column: 15; }
+    .group-16 { grid-column: 16; }
+    .group-17 { grid-column: 17; }
+    .group-18 { grid-column: 18; }
+
+    /* Special positioning */
+    .lanthanide-actinide-break {
+        grid-column: 1 / -1;
+        height: 10px;
+        grid-row: 8;
+    }
+
+    /* Legend */
     .legend {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 12px;
-        margin: 20px auto;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin: 20px 0;
         padding: 20px;
         background: var(--bg-card);
         backdrop-filter: blur(10px);
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        max-width: 1000px;
     }
 
     .legend-item {
         display: flex;
         align-items: center;
-        padding: 12px 16px;
-        border-radius: 12px;
+        padding: 10px 15px;
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
         background: rgba(26, 31, 58, 0.5);
         border: 1px solid rgba(255,255,255,0.05);
-        position: relative;
-        overflow: hidden;
     }
 
     .legend-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.2);
+    }
+
+    .legend-item.active {
+        background: rgba(0, 184, 148, 0.2);
+        border-color: var(--u-green);
     }
 
     .legend-color {
-        width: 24px;
-        height: 24px;
-        border-radius: 6px;
-        margin-right: 12px;
-        position: relative;
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        margin-right: 10px;
     }
 
-    .legend-text {
+    /* Search and Controls */
+    .controls {
         display: flex;
-        flex-direction: column;
-        flex-grow: 1;
+        gap: 15px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
-    .legend-title {
-        font-weight: 600;
-        font-size: 14px;
+    .search-input {
+        flex: 1;
+        max-width: 300px;
+        padding: 10px 20px;
+        border-radius: 25px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: var(--bg-secondary);
         color: var(--text-primary);
-        margin-bottom: 2px;
+        transition: all 0.3s ease;
     }
 
-    .legend-count {
-        font-size: 12px;
-        color: var(--text-secondary);
+    .search-input:focus {
+        outline: none;
+        border-color: var(--u-green);
+        box-shadow: 0 0 15px rgba(0, 184, 148, 0.3);
     }
 
-    /* Quiz Modal */
+    /* Modal Styling */
     .modal {
         display: none;
         position: fixed;
@@ -164,89 +236,140 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,0,0,0.8);
         z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     .modal-content {
         background: var(--bg-card);
         backdrop-filter: blur(20px);
-        margin: 5% auto;
-        padding: 25px;
+        margin: 3% auto;
+        padding: 30px;
         width: 90%;
         max-width: 600px;
         border-radius: 20px;
         position: relative;
         max-height: 90vh;
         overflow-y: auto;
-        text-align: center;
-        border: 2px solid transparent;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+        animation: slideIn 0.3s ease;
     }
 
-    .modal-content::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border-radius: 20px;
-        padding: 2px;
-        background: var(--primary-gradient);
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        z-index: -1;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .modal-content:hover::before {
-        opacity: 1;
+    @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
     .close {
         position: absolute;
-        right: 15px;
-        top: 10px;
+        right: 20px;
+        top: 20px;
         cursor: pointer;
-        font-size: 24px;
+        font-size: 28px;
         color: var(--text-muted);
-        line-height: 1;
+        transition: color 0.3s ease;
     }
 
     .close:hover {
+        color: var(--er-pink);
+    }
+
+    /* Element Details */
+    .element-details {
+        text-align: left;
+    }
+
+    .element-header {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .element-symbol-large {
+        font-size: 72px;
+        font-weight: bold;
+        color: var(--u-green);
+        line-height: 1;
+    }
+
+    .element-info {
+        flex: 1;
+    }
+
+    .element-name-large {
+        font-size: 32px;
+        margin-bottom: 5px;
         color: var(--text-primary);
     }
 
-    /* Quiz Elements */
-    .quiz-button {
-        background: var(--primary-gradient);
-        color: var(--bg-primary);
-        border: none;
-        border-radius: 25px;
-        padding: 12px 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    .element-number-large {
+        font-size: 18px;
+        color: var(--text-secondary);
     }
 
-    .quiz-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(0, 184, 148, 0.4);
+    .property-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .property-item {
+        padding: 15px;
+        background: rgba(26, 31, 58, 0.5);
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .property-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+    }
+
+    .property-value {
+        font-size: 16px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    /* Quiz Styling */
+    .quiz-question {
+        font-size: 20px;
+        margin: 20px 0;
+        color: var(--text-primary);
+    }
+
+    .quiz-options {
+        display: grid;
+        gap: 10px;
+        margin: 20px 0;
     }
 
     .quiz-option {
-        background: var(--bg-secondary);
+        padding: 15px 20px;
+        border-radius: 10px;
         border: 1px solid rgba(255,255,255,0.1);
-        color: var(--text-secondary);
+        background: var(--bg-secondary);
+        cursor: pointer;
         transition: all 0.3s ease;
+        text-align: left;
     }
 
-    .quiz-option:hover {
+    .quiz-option:hover:not(.disabled) {
         background: rgba(0, 184, 148, 0.1);
         border-color: var(--u-green);
+        transform: translateX(5px);
     }
 
     .quiz-option.correct {
@@ -261,236 +384,529 @@
         color: var(--er-pink);
     }
 
-    /* Responsive adjustments */
+    .quiz-option.disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .quiz-feedback {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(26, 31, 58, 0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .quiz-score {
+        text-align: center;
+        font-size: 18px;
+        margin: 20px 0;
+        color: var(--text-primary);
+    }
+
+    /* Responsive Design */
     @media (max-width: 1200px) {
         .periodic-table {
-            grid-template-columns: repeat(18, 1fr);
             font-size: 90%;
-            gap: 2px;
+            gap: 1px;
         }
+        .symbol { font-size: 18px; }
     }
 
     @media (max-width: 768px) {
         .periodic-table {
-            grid-template-columns: repeat(18, 1fr);
-            gap: 1px;
+            font-size: 70%;
+            overflow-x: auto;
+            min-width: 800px;
         }
-        
-        .element {
-            font-size: 11px;
-            padding: 2px;
-        }
-        
-        .atomic-number {
-            font-size: 9px;
-        }
-        
-        .symbol {
-            font-size: 14px;
-        }
-        
-        .name, .mass {
-            font-size: 8px;
-        }
+        .element { padding: 1px; }
+        .symbol { font-size: 14px; }
+        .name { display: none; }
+        .mass { display: none; }
+        .controls { flex-direction: column; }
+        .search-input { max-width: 100%; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="text-center mb-5 fade-in">
+<div class="periodic-container fade-in">
+    <div class="text-center mb-5">
         <h1 class="text-gradient mb-3">
             <i class="fas fa-atom"></i> Interactive Periodic Table
         </h1>
-        <p style="color: var(--text-secondary);">Explore chemical elements and test your knowledge</p>
-    
-        <div class="controls mt-4">
-            <input type="text" class="form-control mb-3" placeholder="Search elements..." id="searchInput">
-            <button class="btn btn-primary" onclick="startQuiz()">
-                <i class="fas fa-question-circle me-2"></i>Take Quiz
-            </button>
-        </div>
+        <p style="color: var(--text-secondary);">Explore the elements and test your chemistry knowledge</p>
     </div>
     
-    <div class="legend">
-        <div class="legend-item alkali-metal" data-category="alkali-metal">
-            <div class="legend-color" style="background: #ffcdd2"></div>
-            <div class="legend-text">
-                <span class="legend-title">Alkali Metals</span>
-                <span class="legend-count">6 elements</span>
-            </div>
-        </div>
-        <div class="legend-item alkaline-earth" data-category="alkaline-earth">
-            <div class="legend-color" style="background: #ffe0b2"></div>
-            <div class="legend-text">
-                <span class="legend-title">Alkaline Earth Metals</span>
-                <span class="legend-count">6 elements</span>
-            </div>
-        </div>
-        <div class="legend-item transition-metal" data-category="transition-metal">
-            <div class="legend-color" style="background: #fff9c4"></div>
-            <div class="legend-text">
-                <span class="legend-title">Transition Metals</span>
-                <span class="legend-count">38 elements</span>
-            </div>
-        </div>
-        <div class="legend-item post-transition" data-category="post-transition">
-            <div class="legend-color" style="background: #c8e6c9"></div>
-            <div class="legend-text">
-                <span class="legend-title">Post-transition Metals</span>
-                <span class="legend-count">8 elements</span>
-            </div>
-        </div>
-        <div class="legend-item metalloid" data-category="metalloid">
-            <div class="legend-color" style="background: #b2dfdb"></div>
-            <div class="legend-text">
-                <span class="legend-title">Metalloids</span>
-                <span class="legend-count">7 elements</span>
-            </div>
-        </div>
-        <div class="legend-item nonmetal" data-category="nonmetal">
-            <div class="legend-color" style="background: #bbdefb"></div>
-            <div class="legend-text">
-                <span class="legend-title">Nonmetals</span>
-                <span class="legend-count">7 elements</span>
-            </div>
-        </div>
-        <div class="legend-item noble-gas" data-category="noble-gas">
-            <div class="legend-color" style="background: #e1bee7"></div>
-            <div class="legend-text">
-                <span class="legend-title">Noble Gases</span>
-                <span class="legend-count">7 elements</span>
-            </div>
-        </div>
-        <div class="legend-item lanthanide" data-category="lanthanide">
-            <div class="legend-color" style="background: #f8bbd0"></div>
-            <div class="legend-text">
-                <span class="legend-title">Lanthanides</span>
-                <span class="legend-count">15 elements</span>
-            </div>
-        </div>
-        <div class="legend-item actinide" data-category="actinide">
-            <div class="legend-color" style="background: #ffccbc"></div>
-            <div class="legend-text">
-                <span class="legend-title">Actinides</span>
-                <span class="legend-count">15 elements</span>
-            </div>
-        </div>
+    <div class="controls">
+        <input type="text" class="search-input" placeholder="Search elements..." id="searchInput">
+        <button class="btn btn-primary" onclick="startQuiz()">
+            <i class="fas fa-question-circle me-2"></i>Take Quiz
+        </button>
+        <button class="btn btn-secondary" onclick="resetDisplay()">
+            <i class="fas fa-redo me-2"></i>Reset View
+        </button>
     </div>
+    
+    <div class="legend" id="legend"></div>
     
     <div class="periodic-table" id="periodicTable"></div>
+    
+    <div class="lanthanide-actinide-break"></div>
+</div>
 
-    <div id="elementModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="elementDetails"></div>
-        </div>
+<!-- Element Details Modal -->
+<div id="elementModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('elementModal')">&times;</span>
+        <div id="elementDetails" class="element-details"></div>
     </div>
+</div>
 
-    <div id="quizModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="quizContainer">
-                <h2>Periodic Table Quiz</h2>
-                <div id="quizScore"></div>
-                <div id="quizQuestion"></div>
-                <div id="quizOptions"></div>
-                <div id="quizFeedback"></div>
-                <button class="btn btn-primary mt-3" id="nextButton" style="display: none;">Next Question</button>
-            </div>
-        </div>
+<!-- Quiz Modal -->
+<div id="quizModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('quizModal')">&times;</span>
+        <h2 class="text-gradient mb-4">
+            <i class="fas fa-flask"></i> Periodic Table Quiz
+        </h2>
+        <div id="quizScore" class="quiz-score"></div>
+        <div id="quizQuestion" class="quiz-question"></div>
+        <div id="quizOptions" class="quiz-options"></div>
+        <div id="quizFeedback" class="quiz-feedback" style="display: none;"></div>
+        <button class="btn btn-primary mt-3" id="nextButton" style="display: none;" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right ms-2"></i>
+        </button>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Complete periodic table data with all 118 elements
-const elements = [
-    {number: 1, symbol: "H", name: "Hydrogen", mass: "1.008", category: "nonmetal", period: 1, group: 1},
-    {number: 2, symbol: "He", name: "Helium", mass: "4.003", category: "noble-gas", period: 1, group: 18},
-    // ... all other elements ...
+// Element data from Django
+const elements = {{ elements_json|safe }};
+
+// Quiz questions from Django (or fallback)
+let quizQuestions = {{ quiz_questions_json|safe }};
+
+// Fallback quiz questions if none from database
+if (!quizQuestions || quizQuestions.length === 0) {
+    quizQuestions = [
+        {
+            question: "Which element has the highest atomic number?",
+            options: ["Uranium", "Oganesson", "Plutonium", "Fermium"],
+            correct: "Oganesson",
+            explanation: "Oganesson (Og) has atomic number 118, the highest on the periodic table.",
+            difficulty: "medium"
+        },
+        {
+            question: "Which element is a liquid at room temperature?",
+            options: ["Mercury", "Gallium", "Cesium", "Francium"],
+            correct: "Mercury",
+            explanation: "Mercury (Hg) and Bromine (Br) are the only elements liquid at room temperature.",
+            difficulty: "easy"
+        },
+        {
+            question: "What is the most abundant element in the universe?",
+            options: ["Oxygen", "Carbon", "Hydrogen", "Helium"],
+            correct: "Hydrogen",
+            explanation: "Hydrogen makes up about 75% of the universe's elemental mass.",
+            difficulty: "easy"
+        },
+        {
+            question: "Which noble gas has the highest boiling point?",
+            options: ["Xenon", "Radon", "Krypton", "Argon"],
+            correct: "Radon",
+            explanation: "Radon has the highest boiling point among noble gases at -61.7°C.",
+            difficulty: "hard"
+        },
+        {
+            question: "Which element was named after Albert Einstein?",
+            options: ["Einsteinium", "Nobelium", "Fermium", "Curium"],
+            correct: "Einsteinium",
+            explanation: "Einsteinium (Es, atomic number 99) was named in honor of Albert Einstein.",
+            difficulty: "medium"
+        }
+    ];
+}
+
+// Categories for legend
+const categories = [
+    { id: 'alkali-metal', name: 'Alkali Metals', color: '#FF5E62' },
+    { id: 'alkaline-earth', name: 'Alkaline Earth Metals', color: '#FFCE54' },
+    { id: 'transition-metal', name: 'Transition Metals', color: '#FF9A00' },
+    { id: 'post-transition', name: 'Post-transition Metals', color: '#00B894' },
+    { id: 'metalloid', name: 'Metalloids', color: '#00A3BF' },
+    { id: 'nonmetal', name: 'Nonmetals', color: '#5997FF' },
+    { id: 'halogen', name: 'Halogens', color: '#9B59FF' },
+    { id: 'noble-gas', name: 'Noble Gases', color: '#FF59CD' },
+    { id: 'lanthanide', name: 'Lanthanides', color: '#FF8A8A' },
+    { id: 'actinide', name: 'Actinides', color: '#FFB18A' }
 ];
 
-// Quiz questions - same as in the provided code
-const quizQuestions = [
-    {
-        question: "Which element has the highest atomic number?",
-        options: ["Uranium", "Oganesson", "Plutonium", "Fermium"],
-        correct: "Oganesson",
-        explanation: "Oganesson (Og) has an atomic number of 118, making it the element with the highest atomic number.",
-        difficulty: "medium"
-    },
-    // ... other quiz questions ...
-];
-
-// Initialize variables
+// State variables
 let currentQuestion = 0;
 let score = 0;
 let questionAnswered = false;
+let activeCategory = null;
 
-// Functions for periodic table - same as in the provided code
+// Initialize periodic table
 function createPeriodicTable() {
-    // ... code to create periodic table ...
+    const table = document.getElementById('periodicTable');
+    table.innerHTML = '';
+    
+    elements.forEach(element => {
+        const elementDiv = document.createElement('div');
+        elementDiv.className = `element ${element.category} period-${element.period} group-${element.group || ''}`;
+        elementDiv.dataset.element = JSON.stringify(element);
+        
+        // Special positioning for lanthanides and actinides
+        if (element.number >= 57 && element.number <= 71) {
+            elementDiv.className += ' period-8';
+            elementDiv.style.gridColumn = element.number - 54;
+        } else if (element.number >= 89 && element.number <= 103) {
+            elementDiv.className += ' period-9';
+            elementDiv.style.gridColumn = element.number - 86;
+        }
+        
+        elementDiv.innerHTML = `
+            <div class="atomic-number">${element.number}</div>
+            <div class="symbol">${element.symbol}</div>
+            <div class="name">${element.name}</div>
+            <div class="mass">${element.mass}</div>
+        `;
+        
+        elementDiv.onclick = () => showElementDetails(element);
+        table.appendChild(elementDiv);
+    });
 }
 
-function getElectronConfig(atomicNumber) {
-    // ... code to get electron configuration ...
+// Create legend
+function createLegend() {
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '';
+    
+    categories.forEach(category => {
+        const count = elements.filter(e => e.category === category.id).length;
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.dataset.category = category.id;
+        
+        item.innerHTML = `
+            <div class="legend-color" style="background: ${category.color}"></div>
+            <div>
+                <div style="font-weight: 600">${category.name}</div>
+                <div style="font-size: 12px; color: var(--text-secondary)">${count} elements</div>
+            </div>
+        `;
+        
+        item.onclick = () => filterByCategory(category.id);
+        legend.appendChild(item);
+    });
 }
 
-function toSuperscript(num) {
-    // ... code for superscript conversion ...
+// Filter by category
+function filterByCategory(categoryId) {
+    const allElements = document.querySelectorAll('.element');
+    const legendItems = document.querySelectorAll('.legend-item');
+    
+    if (activeCategory === categoryId) {
+        // Deactivate filter
+        activeCategory = null;
+        allElements.forEach(el => {
+            el.style.opacity = '1';
+            el.classList.remove('highlighted');
+        });
+        legendItems.forEach(item => item.classList.remove('active'));
+    } else {
+        // Activate filter
+        activeCategory = categoryId;
+        allElements.forEach(el => {
+            if (el.classList.contains(categoryId)) {
+                el.style.opacity = '1';
+                el.classList.add('highlighted');
+            } else {
+                el.style.opacity = '0.2';
+                el.classList.remove('highlighted');
+            }
+        });
+        legendItems.forEach(item => {
+            if (item.dataset.category === categoryId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
 }
 
+// Show element details
 function showElementDetails(element) {
-    // ... code to show element details ...
+    const modal = document.getElementById('elementModal');
+    const details = document.getElementById('elementDetails');
+    
+    details.innerHTML = `
+        <div class="element-header">
+            <div class="element-symbol-large ${element.category}">${element.symbol}</div>
+            <div class="element-info">
+                <div class="element-name-large">${element.name}</div>
+                <div class="element-number-large">Atomic Number: ${element.number}</div>
+                <div style="color: var(--text-secondary)">Atomic Mass: ${element.mass}</div>
+            </div>
+        </div>
+        
+        <div class="property-grid">
+            <div class="property-item">
+                <div class="property-label">Category</div>
+                <div class="property-value">${getCategoryName(element.category)}</div>
+            </div>
+            <div class="property-item">
+                <div class="property-label">Period</div>
+                <div class="property-value">${element.period}</div>
+            </div>
+            <div class="property-item">
+                <div class="property-label">Group</div>
+                <div class="property-value">${element.group || 'N/A'}</div>
+            </div>
+            <div class="property-item">
+                <div class="property-label">Phase at STP</div>
+                <div class="property-value">${element.phase ? element.phase.charAt(0).toUpperCase() + element.phase.slice(1) : 'N/A'}</div>
+            </div>
+            ${element.electronegativity ? `
+            <div class="property-item">
+                <div class="property-label">Electronegativity</div>
+                <div class="property-value">${element.electronegativity}</div>
+            </div>
+            ` : ''}
+            ${element.density ? `
+            <div class="property-item">
+                <div class="property-label">Density</div>
+                <div class="property-value">${element.density} g/cm³</div>
+            </div>
+            ` : ''}
+            ${element.meltingPoint ? `
+            <div class="property-item">
+                <div class="property-label">Melting Point</div>
+                <div class="property-value">${element.meltingPoint} K</div>
+            </div>
+            ` : ''}
+            ${element.boilingPoint ? `
+            <div class="property-item">
+                <div class="property-label">Boiling Point</div>
+                <div class="property-value">${element.boilingPoint} K</div>
+            </div>
+            ` : ''}
+            ${element.discoverer ? `
+            <div class="property-item">
+                <div class="property-label">Discovered By</div>
+                <div class="property-value">${element.discoverer} ${element.year ? `(${element.year})` : ''}</div>
+            </div>
+            ` : ''}
+            ${element.electronConfig ? `
+            <div class="property-item" style="grid-column: 1 / -1">
+                <div class="property-label">Electron Configuration</div>
+                <div class="property-value">${element.electronConfig}</div>
+            </div>
+            ` : ''}
+            ${element.radioactive ? `
+            <div class="property-item">
+                <div class="property-label">Radioactive</div>
+                <div class="property-value">Yes☢️</div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+    
+    modal.style.display = 'block';
 }
 
+// Get category name
+function getCategoryName(categoryId) {
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : categoryId;
+}
+
+// Search functionality
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const allElements = document.querySelectorAll('.element');
+        
+        if (query === '') {
+            resetDisplay();
+            return;
+        }
+        
+        allElements.forEach(el => {
+            const elementData = JSON.parse(el.dataset.element);
+            const matches = 
+                elementData.name.toLowerCase().includes(query) ||
+                elementData.symbol.toLowerCase().includes(query) ||
+                elementData.number.toString().includes(query);
+            
+            if (matches) {
+                el.style.opacity = '1';
+                el.classList.add('highlighted');
+            } else {
+                el.style.opacity = '0.2';
+                el.classList.remove('highlighted');
+            }
+        });
+    });
+}
+
+// Quiz functionality
 function startQuiz() {
-    // ... quiz code ...
+    currentQuestion = 0;
+    score = 0;
+    shuffleArray(quizQuestions);
+    showQuestion();
+    document.getElementById('quizModal').style.display = 'block';
 }
 
 function showQuestion() {
-    // ... quiz code ...
-}
-
-function checkAnswer(selected) {
-    // ... quiz code ...
-}
-
-// Event listeners and initialization
-document.addEventListener('DOMContentLoaded', function() {
-    createPeriodicTable();
+    if (currentQuestion >= quizQuestions.length || currentQuestion >= 10) {
+        showQuizResults();
+        return;
+    }
     
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        // ... search code ...
+    const question = quizQuestions[currentQuestion];
+    questionAnswered = false;
+    
+    document.getElementById('quizScore').innerHTML = `
+        Question ${currentQuestion + 1} of ${Math.min(10, quizQuestions.length)} 
+        <span style="float: right">Score: ${score}</span>
+    `;
+    
+    document.getElementById('quizQuestion').innerHTML = question.question;
+    
+    const optionsDiv = document.getElementById('quizOptions');
+    optionsDiv.innerHTML = '';
+    
+    const shuffledOptions = [...question.options];
+    shuffleArray(shuffledOptions);
+    
+    shuffledOptions.forEach(option => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option';
+        optionDiv.textContent = option;
+        optionDiv.onclick = () => checkAnswer(option, question);
+        optionsDiv.appendChild(optionDiv);
     });
+    
+    document.getElementById('quizFeedback').style.display = 'none';
+    document.getElementById('nextButton').style.display = 'none';
+}
 
-    // Legend interactivity
-    const legendItems = document.querySelectorAll('.legend-item');
-    legendItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // ... legend code ...
-        });
-    });
-
-    // Close modals
-    document.querySelectorAll('.close').forEach(button => {
-        button.onclick = function() {
-            this.closest('.modal').style.display = 'none';
+function checkAnswer(selected, question) {
+    if (questionAnswered) return;
+    
+    questionAnswered = true;
+    const options = document.querySelectorAll('.quiz-option');
+    
+    options.forEach(option => {
+        option.classList.add('disabled');
+        if (option.textContent === question.correct) {
+            option.classList.add('correct');
+        } else if (option.textContent === selected) {
+            option.classList.add('incorrect');
         }
     });
+    
+    const feedback = document.getElementById('quizFeedback');
+    if (selected === question.correct) {
+        score++;
+        feedback.innerHTML = `
+            <div style="color: var(--u-green)">
+                <i class="fas fa-check-circle"></i> Correct!
+            </div>
+            <div style="margin-top: 10px">${question.explanation}</div>
+        `;
+    } else {
+        feedback.innerHTML = `
+            <div style="color: var(--er-pink)">
+                <i class="fas fa-times-circle"></i> Incorrect
+            </div>
+            <div style="margin-top: 10px">The correct answer is: <strong>${question.correct}</strong></div>
+            <div style="margin-top: 10px">${question.explanation}</div>
+        `;
+    }
+    
+    feedback.style.display = 'block';
+    document.getElementById('nextButton').style.display = 'inline-block';
+}
 
+function nextQuestion() {
+    currentQuestion++;
+    showQuestion();
+}
+
+function showQuizResults() {
+    const percentage = (score / Math.min(10, quizQuestions.length)) * 100;
+    const modal = document.getElementById('quizModal');
+    
+    modal.querySelector('.modal-content').innerHTML = `
+        <span class="close" onclick="closeModal('quizModal')">&times;</span>
+        <div class="text-center">
+            <h2 class="text-gradient mb-4">Quiz Complete!</h2>
+            <div style="font-size: 48px; margin: 20px 0">
+                ${percentage >= 80 ? '🏆' : percentage >= 60 ? '⭐' : '💪'}
+            </div>
+            <h3>Your Score: ${score} / ${Math.min(10, quizQuestions.length)}</h3>
+            <p style="font-size: 24px; color: var(--text-secondary)">${percentage}%</p>
+            <div style="margin: 30px 0">
+                ${percentage >= 80 ? 'Excellent work! You really know your periodic table!' :
+                  percentage >= 60 ? 'Good job! Keep studying to improve further!' :
+                  'Keep practicing! The periodic table has many secrets to discover!'}
+            </div>
+            <button class="btn btn-primary" onclick="closeModal('quizModal')">
+                Close
+            </button>
+            <button class="btn btn-secondary" onclick="startQuiz()">
+                Try Again
+            </button>
+        </div>
+    `;
+}
+
+// Utility functions
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function resetDisplay() {
+    const allElements = document.querySelectorAll('.element');
+    const legendItems = document.querySelectorAll('.legend-item');
+    
+    activeCategory = null;
+    allElements.forEach(el => {
+        el.style.opacity = '1';
+        el.classList.remove('highlighted');
+    });
+    legendItems.forEach(item => item.classList.remove('active'));
+    document.getElementById('searchInput').value = '';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    createPeriodicTable();
+    createLegend();
+    setupSearch();
+    
+    // Close modal when clicking outside
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';
         }
     }
 });
-
-function resetDisplay() {
-    // ... reset display code ...
-}
 </script>
 {% endblock %}

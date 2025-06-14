@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from decouple import config
+from decouple import config, Csv
 import dj_database_url
 
 # Build paths inside the project
@@ -10,25 +10,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Add apps to Python path
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
-# Security settings
-# In production, set a strong SECRET_KEY in Railway environment variables
-SECRET_KEY = os.getenv('SECRET_KEY', config('SECRET_KEY', default='django-insecure-key-for-development-only'))
+# Read environment variables
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-key-for-development-only')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Set DEBUG to False in production
-DEBUG = os.getenv('DEBUG', config('DEBUG', default='False')).lower() == 'true'
-
-# Add your Railway domain to ALLOWED_HOSTS
-ALLOWED_HOSTS = [
+# Allowed hosts & CSRF trusted origins
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,127.0.0.1',
+    cast=Csv()
+) + [
     'geniusedtech-production.up.railway.app',
-    '.up.railway.app',  # Allow all Railway subdomains
-    'localhost',
-    '127.0.0.1',
+    '.up.railway.app',
 ]
-
-# CSRF Trusted Origins - Required for admin and form submissions
 CSRF_TRUSTED_ORIGINS = [
     'https://geniusedtech-production.up.railway.app',
-    'https://*.up.railway.app',  # Allow all Railway subdomains
+    'https://*.up.railway.app',
 ]
 
 # Application definition
@@ -39,10 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # Third-party apps
     'rest_framework',
-    
+    'django_extensions',
+
     # Project apps
     'core',
     'chemistry',
@@ -53,7 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files on Railway
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -82,24 +80,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database configuration - optimized for Railway
-# Check if running in Railway environment
-IN_RAILWAY = os.getenv('RAILWAY_ENVIRONMENT', '') == 'production'
+# Database configuration
+IN_RAILWAY = config('RAILWAY_ENVIRONMENT', default='').lower() == 'production'
 
 if IN_RAILWAY:
-    # When running in Railway, use internal connection
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
+            default=config('DATABASE_URL'),
             conn_max_age=600,
             ssl_require=False,
         )
     }
 else:
-    # When running locally with railway run, use public URL if available
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.getenv('DATABASE_PUBLIC_URL', os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3')),
+            default=config(
+                'DATABASE_URL',
+                default='sqlite:///db.sqlite3'
+            ),
             conn_max_age=600,
             ssl_require=False,
         )
@@ -119,41 +117,34 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files - optimized for Railway with WhiteNoise
+# Static files (with WhiteNoise)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# Use the simpler CompressedStaticFilesStorage if you have issues with ManifestStaticFilesStorage
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Security settings for production
 if not DEBUG:
-    # HTTPS settings
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-    # HSTS settings
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-    # Content security
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
 else:
-    # For local development
+    # For local development: No HTTPS redirect or secure cookies
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
@@ -185,7 +176,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'level': config('DJANGO_LOG_LEVEL', default='INFO'),
             'propagate': False,
         },
         'django.db.backends': {

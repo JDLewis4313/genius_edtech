@@ -8,5 +8,5 @@ urlpatterns = [
     path('calculator/', views.calculator, name='calculator'),
     path('molecular-viewer/', views.molecular_viewer, name='molecular_viewer'),
     path('periodic-table/', views.periodic_table, name='periodic_table'),
+    path('element/<int:atomic_number>/', views.element_detail, name='element_detail'),
 ]
-
