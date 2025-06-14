@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Element
+import re
 from quiz.models import Question, Topic, Module
 import json
 
@@ -19,8 +20,6 @@ def molecular_viewer(request):
 def periodic_table(request):
     """Interactive periodic table view"""
     elements = Element.objects.all()
-    
-    # Prepare element data for JavaScript
     elements_json = []
     for element in elements:
         element_data = {
@@ -42,10 +41,8 @@ def periodic_table(request):
             'electronConfig': element.get_electron_configuration(),
         }
         elements_json.append(element_data)
-    
-    # Get periodic table quiz questions from the database
+
     try:
-        # Find the periodic trends topic or atomic structure module
         periodic_questions = Question.objects.filter(
             topic__title__icontains='periodic'
         ) | Question.objects.filter(
@@ -55,13 +52,10 @@ def periodic_table(request):
         ) | Question.objects.filter(
             text__icontains='periodic'
         )
-        
-        # Convert questions to format expected by the template
         quiz_questions = []
-        for question in periodic_questions[:20]:  # Limit to 20 questions
+        for question in periodic_questions[:20]:
             options = [choice.text for choice in question.choices.all()]
             correct_answer = question.choices.filter(is_correct=True).first()
-            
             if options and correct_answer:
                 quiz_questions.append({
                     'question': question.text,
@@ -71,18 +65,15 @@ def periodic_table(request):
                     'difficulty': question.difficulty
                 })
     except:
-        # Fallback to default questions if database queries fail
         quiz_questions = []
-    
+
     context = {
         'elements_json': json.dumps(elements_json),
         'quiz_questions_json': json.dumps(quiz_questions) if quiz_questions else '[]',
     }
-    
     return render(request, 'chemistry/periodic_table.html', context)
 
 def element_detail(request, atomic_number):
-    """Get detailed information about a specific element"""
     try:
         element = Element.objects.get(atomic_number=atomic_number)
         data = {
@@ -121,5 +112,42 @@ def element_detail(request, atomic_number):
         }
     except Element.DoesNotExist:
         data = {'success': False, 'error': 'Element not found'}
-    
     return JsonResponse(data)
+
+# --- NEW: AJAX endpoint for molar mass calculation ---
+def calculate_molar_mass(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            formula = data.get("formula", "")
+            if not formula:
+                return JsonResponse({"success": False, "error": "No formula provided"})
+
+            # Parse the chemical formula and calculate the molar mass
+            # Example: C6H12O6 → {'C':6, 'H':12, 'O':6}
+            pattern = r'([A-Z][a-z]?)(\d*)'
+            elements = re.findall(pattern, formula)
+            if not elements:
+                return JsonResponse({"success": False, "error": "Invalid formula"})
+
+            total_mass = 0.0
+            steps = []
+            for symbol, count in elements:
+                try:
+                    element = Element.objects.get(symbol=symbol)
+                except Element.DoesNotExist:
+                    return JsonResponse({"success": False, "error": f"Unknown element: {symbol}"})
+                n = int(count) if count else 1
+                mass_contrib = element.atomic_mass * n
+                total_mass += mass_contrib
+                steps.append(f"{symbol}: {element.atomic_mass} × {n} = {mass_contrib:.3f}")
+
+            return JsonResponse({
+                "success": True,
+                "formula": formula,
+                "molar_mass": total_mass,
+                "steps": steps,
+            })
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "POST required"})

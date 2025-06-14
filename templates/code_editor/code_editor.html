@@ -190,27 +190,11 @@
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div id="editor" class="code-editor"># Welcome to GeNiUS Code Lab! 🧪🔬
-# Calculate molecular weight of water (H2O)
+                    <!-- Editor container, default text begin -->
 
-def calculate_molecular_weight():
-    # Atomic masses (g/mol)
-    H = 1.008  # Hydrogen
-    O = 15.999 # Oxygen
-    
-    # Water molecule: H2O
-    water_mw = (2 * H) + O
-    print(f'Molecular weight of H2O: {water_mw:.3f} g/mol')
-    
-    # Calculate moles in 18g of water
-    mass = 18.0  # grams
-    moles = mass / water_mw
-    print(f'Moles in {mass}g of water: {moles:.3f} mol')
-    
-    return water_mw
+                    <!-- Editor container, default text end -->
 
-# Run the calculation
-calculate_molecular_weight()</div>
+                    <div id="editor" class="code-editor"></div>
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-between align-items-center">
@@ -302,17 +286,73 @@ calculate_molecular_weight()</div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Load Monaco Editor -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.min.js"></script>
 <script>
+    // CSRF token helper (required for Django POST)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    window.csrfToken = getCookie('csrftoken');
+
     let editor;
     let currentLanguage = 'python';
-    
-    // Monaco Editor configuration
+
+    // Default code for the editor
+    const defaultCode = {
+        python: `# Welcome to GeNiUS Code Lab! 🧪🔬
+# Calculate molecular weight of water (H2O)
+
+def calculate_molecular_weight():
+    # Atomic masses (g/mol)
+    H = 1.008  # Hydrogen
+    O = 15.999 # Oxygen
+
+    # Water molecule: H2O
+    water_mw = (2 * H) + O
+    print(f'Molecular weight of H2O: {water_mw:.3f} g/mol')
+
+    # Calculate moles in 18g of water
+    mass = 18.0  # grams
+    moles = mass / water_mw
+    print(f'Moles in {mass}g of water: {moles:.3f} mol')
+
+    return water_mw
+
+# Run the calculation
+calculate_molecular_weight()`,
+        javascript: `// Welcome to GeNiUS Code Lab! 🧪🔬
+// Calculate molecular weight of water (H2O) in JavaScript
+
+const H = 1.008; // Hydrogen
+const O = 15.999; // Oxygen
+
+const water_mw = (2 * H) + O;
+console.log("Molecular weight of H2O: " + water_mw.toFixed(3) + " g/mol");
+
+const mass = 18.0; // grams
+const moles = mass / water_mw;
+console.log("Moles in 18g of water: " + moles.toFixed(3) + " mol");`,
+        sql: `-- Welcome to GeNiUS Code Lab! 🧪🔬
+-- Query to select all elements from a periodic table database
+
+SELECT * FROM elements WHERE symbol = 'H2O';`
+    };
+
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
         editor = monaco.editor.create(document.getElementById('editor'), {
-            value: document.getElementById('editor').textContent,
+            value: defaultCode.python,
             language: 'python',
             theme: 'vs-dark',
             automaticLayout: true,
@@ -324,510 +364,85 @@ calculate_molecular_weight()</div>
             insertSpaces: true,
             wordWrap: 'on'
         });
-        
+
         // Update line count on editor change
         editor.onDidChangeModelContent(function() {
             updateLineCount();
         });
-        
+
         // Initial line count update
         updateLineCount();
     });
-    
-    // Update line count
+
     function updateLineCount() {
         if (editor) {
             const lineCount = editor.getModel().getLineCount();
             document.getElementById('line-count').textContent = lineCount;
         }
     }
-    
-    // Switch language
-    function switchLanguage(language) {
+
+    function switchLanguage(event, language) {
         currentLanguage = language;
-        
-        // Update monaco language
         monaco.editor.setModelLanguage(editor.getModel(), language);
-        
+
+        // Set default code for language
+        if (defaultCode[language]) {
+            editor.setValue(defaultCode[language]);
+        } else {
+            editor.setValue('');
+        }
+
         // Update language indicator
         document.getElementById('language-indicator').textContent = language.charAt(0).toUpperCase() + language.slice(1);
-        
+
         // Update active tab
         document.querySelectorAll('.language-tab').forEach(tab => {
             tab.classList.remove('active');
         });
         event.target.classList.add('active');
-    }
-    
-    // Load template
-    function loadTemplate(templateName) {
-        const templates = {
-            molecular_weight: {
-                python: `# Molecular Weight Calculator
-# Calculate molecular weights from chemical formulas
 
-def get_atomic_weights():
-    """Dictionary of atomic weights for common elements"""
-    return {
-        'H': 1.008, 'C': 12.011, 'N': 14.007, 'O': 15.999,
-        'F': 18.998, 'Na': 22.990, 'Mg': 24.305, 'Al': 26.982,
-        'Si': 28.085, 'P': 30.974, 'S': 32.065, 'Cl': 35.453,
-        'K': 39.098, 'Ca': 40.078, 'Fe': 55.845, 'Cu': 63.546
-    }
-
-def calculate_molecular_weight(formula):
-    """Calculate molecular weight from chemical formula"""
-    atomic_weights = get_atomic_weights()
-    
-    # Initialize variables
-    total_weight = 0
-    i = 0
-    
-    while i < len(formula):
-        # Get element symbol
-        if i + 1 < len(formula) and formula[i+1].islower():
-            element = formula[i:i+2]
-            i += 2
-        else:
-            element = formula[i]
-            i += 1
-        
-        # Get count
-        count = ""
-        while i < len(formula) and formula[i].isdigit():
-            count += formula[i]
-            i += 1
-        
-        # Convert count to integer, default to 1 if empty
-        count = int(count) if count else 1
-        
-        # Add to total weight
-        if element in atomic_weights:
-            total_weight += atomic_weights[element] * count
-        else:
-            print(f"Warning: Element {element} not found")
-    
-    return total_weight
-
-# Test the function
-formulas = ["H2O", "NaCl", "C6H12O6", "C2H5OH"]
-for formula in formulas:
-    mw = calculate_molecular_weight(formula)
-    print(f"Molecular weight of {formula}: {mw:.3f} g/mol")`,
-                javascript: `// Molecular Weight Calculator in JavaScript
-
-const atomicWeights = {
-    'H': 1.008, 'C': 12.011, 'N': 14.007, 'O': 15.999,
-    'F': 18.998, 'Na': 22.990, 'Mg': 24.305, 'Al': 26.982,
-    'Si': 28.085, 'P': 30.974, 'S': 32.065, 'Cl': 35.453,
-    'K': 39.098, 'Ca': 40.078, 'Fe': 55.845, 'Cu': 63.546
-};
-
-function calculateMolecularWeight(formula) {
-    let totalWeight = 0;
-    let i = 0;
-    
-    while (i < formula.length) {
-        // Get element symbol
-        let element;
-        if (i + 1 < formula.length && formula[i+1].match(/[a-z]/)) {
-            element = formula.substr(i, 2);
-            i += 2;
-        } else {
-            element = formula[i];
-            i += 1;
-        }
-        
-        // Get count
-        let count = "";
-        while (i < formula.length && formula[i].match(/[0-9]/)) {
-            count += formula[i];
-            i += 1;
-        }
-        
-        // Convert count to integer, default to 1 if empty
-        count = count ? parseInt(count) : 1;
-        
-        // Add to total weight
-        if (element in atomicWeights) {
-            totalWeight += atomicWeights[element] * count;
-        } else {
-            console.warn(\`Warning: Element \${element} not found\`);
-        }
-    }
-    
-    return totalWeight;
-}
-
-// Test the function
-const formulas = ["H2O", "NaCl", "C6H12O6", "C2H5OH"];
-formulas.forEach(formula => {
-    const mw = calculateMolecularWeight(formula);
-    console.log(\`Molecular weight of \${formula}: \${mw.toFixed(3)} g/mol\`);
-});`
-            },
-            equation_parser: {
-                python: `# Chemical Equation Parser in Python
-
-def parse_chemical_equation(equation):
-    """Parse and analyze chemical equations"""
-    # Split by arrow
-    sides = equation.split('→')
-    if len(sides) != 2:
-        return "Invalid equation format"
-    
-    reactants = [r.strip() for r in sides[0].split('+')]
-    products = [p.strip() for p in sides[1].split('+')]
-    
-    return {
-        'reactants': reactants,
-        'products': products,
-        'balanced': check_balance(reactants, products)
-    }
-
-def check_balance(reactants, products):
-    """Check if the equation is balanced"""
-    # Count atoms on each side
-    reactant_atoms = count_atoms(reactants)
-    product_atoms = count_atoms(products)
-    
-    # Compare atom counts
-    return reactant_atoms == product_atoms
-
-def count_atoms(compounds):
-    """Count atoms in a list of compounds"""
-    atom_count = {}
-    
-    for compound in compounds:
-        # Extract coefficient
-        coefficient = 1
-        if compound[0].isdigit():
-            i = 0
-            coef_str = ""
-            while i < len(compound) and compound[i].isdigit():
-                coef_str += compound[i]
-                i += 1
-            coefficient = int(coef_str)
-            compound = compound[i:]
-        
-        # Parse formula
-        i = 0
-        while i < len(compound):
-            # Get element symbol
-            if i + 1 < len(compound) and compound[i+1].islower():
-                element = compound[i:i+2]
-                i += 2
-            else:
-                element = compound[i]
-                i += 1
-            
-            # Get count
-            count = ""
-            while i < len(compound) and compound[i].isdigit():
-                count += compound[i]
-                i += 1
-            
-            # Convert count to integer, default to 1 if empty
-            count = int(count) if count else 1
-            
-            # Add to atom count
-            if element in atom_count:
-                atom_count[element] += count * coefficient
-            else:
-                atom_count[element] = count * coefficient
-    
-    return atom_count
-
-# Test the parser
-equations = [
-    "2H2 + O2 → 2H2O",
-    "CH4 + 2O2 → CO2 + 2H2O",
-    "C6H12O6 + 6O2 → 6CO2 + 6H2O"
-]
-
-for eq in equations:
-    result = parse_chemical_equation(eq)
-    print(f"Equation: {eq}")
-    print(f"Reactants: {result['reactants']}")
-    print(f"Products: {result['products']}")
-    print(f"Balanced: {result['balanced']}")
-    print()`,
-                javascript: `// Chemical Equation Parser in JavaScript
-
-function parseChemicalEquation(equation) {
-    // Split by arrow
-    const sides = equation.split('→');
-    if (sides.length !== 2) {
-        return "Invalid equation format";
-    }
-    
-    const reactants = sides[0].split('+').map(r => r.trim());
-    const products = sides[1].split('+').map(p => p.trim());
-    
-    return {
-        reactants: reactants,
-        products: products,
-        balanced: checkBalance(reactants, products)
-    };
-}
-
-function checkBalance(reactants, products) {
-    // Count atoms on each side
-    const reactantAtoms = countAtoms(reactants);
-    const productAtoms = countAtoms(products);
-    
-    // Compare atom counts
-    return JSON.stringify(reactantAtoms) === JSON.stringify(productAtoms);
-}
-
-function countAtoms(compounds) {
-    const atomCount = {};
-    
-    for (const compound of compounds) {
-        // Extract coefficient
-        let coefficient = 1;
-        let formulaStart = 0;
-        
-        if (compound[0].match(/[0-9]/)) {
-            let i = 0;
-            let coefStr = "";
-            while (i < compound.length && compound[i].match(/[0-9]/)) {
-                coefStr += compound[i];
-                i++;
-            }
-            coefficient = parseInt(coefStr);
-            formulaStart = i;
-        }
-        
-        const formula = compound.substring(formulaStart);
-        
-        // Parse formula
-        let i = 0;
-        while (i < formula.length) {
-            // Get element symbol
-            let element;
-            if (i + 1 < formula.length && formula[i+1].match(/[a-z]/)) {
-                element = formula.substr(i, 2);
-                i += 2;
-            } else {
-                element = formula[i];
-                i += 1;
-            }
-            
-            // Get count
-            let count = "";
-            while (i < formula.length && formula[i].match(/[0-9]/)) {
-                count += formula[i];
-                i += 1;
-            }
-            
-            // Convert count to integer, default to 1 if empty
-            count = count ? parseInt(count) : 1;
-            
-            // Add to atom count
-            if (element in atomCount) {
-                atomCount[element] += count * coefficient;
-            } else {
-                atomCount[element] = count * coefficient;
-            }
-        }
-    }
-    
-    return atomCount;
-}
-
-// Test the parser
-const equations = [
-    "2H2 + O2 → 2H2O",
-    "CH4 + 2O2 → CO2 + 2H2O",
-    "C6H12O6 + 6O2 → 6CO2 + 6H2O"
-];
-
-for (const eq of equations) {
-    const result = parseChemicalEquation(eq);
-    console.log(\`Equation: \${eq}\`);
-    console.log(\`Reactants: \${result.reactants}\`);
-    console.log(\`Products: \${result.products}\`);
-    console.log(\`Balanced: \${result.balanced}\`);
-    console.log();
-}`
-            },
-            periodic_table: {
-                sql: `-- Periodic Table Queries
--- Query chemical elements database
-
--- Create a sample elements table if it doesn't exist
-CREATE TABLE IF NOT EXISTS elements (
-    atomic_number INTEGER PRIMARY KEY,
-    symbol TEXT NOT NULL,
-    name TEXT NOT NULL,
-    atomic_mass REAL NOT NULL,
-    electron_configuration TEXT,
-    group_number INTEGER,
-    period INTEGER,
-    category TEXT
-);
-
--- Insert some sample data if the table is empty
-INSERT OR IGNORE INTO elements VALUES
-(1, 'H', 'Hydrogen', 1.008, '1s1', 1, 1, 'nonmetal'),
-(2, 'He', 'Helium', 4.0026, '1s2', 18, 1, 'noble gas'),
-(3, 'Li', 'Lithium', 6.94, '[He] 2s1', 1, 2, 'alkali metal'),
-(4, 'Be', 'Beryllium', 9.0122, '[He] 2s2', 2, 2, 'alkaline earth metal'),
-(5, 'B', 'Boron', 10.81, '[He] 2s2 2p1', 13, 2, 'metalloid'),
-(6, 'C', 'Carbon', 12.011, '[He] 2s2 2p2', 14, 2, 'nonmetal'),
-(7, 'N', 'Nitrogen', 14.007, '[He] 2s2 2p3', 15, 2, 'nonmetal'),
-(8, 'O', 'Oxygen', 15.999, '[He] 2s2 2p4', 16, 2, 'nonmetal'),
-(9, 'F', 'Fluorine', 18.998, '[He] 2s2 2p5', 17, 2, 'halogen'),
-(10, 'Ne', 'Neon', 20.180, '[He] 2s2 2p6', 18, 2, 'noble gas');
-
--- Query 1: Find all elements with atomic number less than 10
-SELECT 
-    atomic_number,
-    symbol,
-    name,
-    atomic_mass
-FROM elements
-WHERE atomic_number < 10
-ORDER BY atomic_number;
-
--- Query 2: Find all noble gases
-SELECT * FROM elements 
-WHERE category = 'noble gas';
-
--- Query 3: Calculate average atomic mass by period
-SELECT 
-    period,
-    AVG(atomic_mass) as avg_mass,
-    COUNT(*) as element_count
-FROM elements 
-GROUP BY period
-ORDER BY period;
-
--- Query 4: Find elements with atomic mass greater than the average
-SELECT
-    symbol,
-    name,
-    atomic_mass
-FROM elements
-WHERE atomic_mass > (SELECT AVG(atomic_mass) FROM elements)
-ORDER BY atomic_mass DESC;
-
--- Query 5: Create a view for common elements in chemistry
-CREATE VIEW IF NOT EXISTS common_chemistry_elements AS
-SELECT * FROM elements
-WHERE symbol IN ('H', 'C', 'N', 'O', 'F', 'P', 'S', 'Cl');
-
--- Query the view
-SELECT * FROM common_chemistry_elements;`
-            }
-        };
-        
-        if (templates[templateName] && templates[templateName][currentLanguage]) {
-            editor.setValue(templates[templateName][currentLanguage]);
-        } else if (templates[templateName]) {
-            // If the template exists but not for current language, switch to a language that has it
-            const availableLang = Object.keys(templates[templateName])[0];
-            switchLanguage(availableLang);
-            editor.setValue(templates[templateName][availableLang]);
-        }
-        
         updateLineCount();
     }
-    
-    // Run code function
+
+    // Dummy loadTemplate (implement as needed!)
+    function loadTemplate(templateName) {
+        alert('Template loading coming soon!');
+    }
+
     function runCode() {
         const code = editor.getValue();
         const outputElement = document.getElementById('output');
-        
-        // Simulate code execution (in a real app, this would be sent to a backend)
         outputElement.innerHTML = `
             <div style="color: var(--u-green); margin-bottom: 10px;">
                 <i class="fas fa-play-circle"></i> Executing ${currentLanguage} code...
             </div>
         `;
-        
-        // Simulate execution delay
-        setTimeout(() => {
-            if (currentLanguage === 'python' && code.includes('molecular_weight')) {
-                outputElement.innerHTML += `
-                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
-Molecular weight of H2O: 18.015 g/mol
-Moles in 18.0g of water: 0.999 mol
-
-<span style="color: var(--u-green);">✓ Code executed successfully!</span>
-                    </div>
-                `;
-            } else if (currentLanguage === 'python' && code.includes('chemical_equation')) {
-                outputElement.innerHTML += `
-                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
-Equation: 2H2 + O2 → 2H2O
-Reactants: ['2H2', 'O2']
-Products: ['2H2O']
-Balanced: True
-
-Equation: CH4 + 2O2 → CO2 + 2H2O
-Reactants: ['CH4', '2O2']
-Products: ['CO2', '2H2O']
-Balanced: True
-
-Equation: C6H12O6 + 6O2 → 6CO2 + 6H2O
-Reactants: ['C6H12O6', '6O2']
-Products: ['6CO2', '6H2O']
-Balanced: True
-
-<span style="color: var(--u-green);">✓ Code executed successfully!</span>
-                    </div>
-                `;
-            } else if (currentLanguage === 'javascript' && code.includes('Molecular')) {
-                outputElement.innerHTML += `
-                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
-Molecular weight of H2O: 18.015 g/mol
-Molecular weight of NaCl: 58.440 g/mol
-Molecular weight of C6H12O6: 180.156 g/mol
-Molecular weight of C2H5OH: 46.069 g/mol
-
-<span style="color: var(--u-green);">✓ Code executed successfully!</span>
-                    </div>
-                `;
-            } else if (currentLanguage === 'sql') {
-                outputElement.innerHTML += `
-                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
--- Query 1 Results:
-atomic_number | symbol | name      | atomic_mass
--------------+--------+-----------+------------
-1            | H      | Hydrogen  | 1.008
-2            | He     | Helium    | 4.0026
-3            | Li     | Lithium   | 6.94
-4            | Be     | Beryllium | 9.0122
-5            | B      | Boron     | 10.81
-6            | C      | Carbon    | 12.011
-7            | N      | Nitrogen  | 14.007
-8            | O      | Oxygen    | 15.999
-9            | F      | Fluorine  | 18.998
-
--- Query 2 Results:
-atomic_number | symbol | name   | atomic_mass | electron_configuration | group_number | period | category
--------------+--------+--------+-------------+-----------------------+-------------+--------+----------
-2            | He     | Helium | 4.0026      | 1s2                   | 18          | 1      | noble gas
-10           | Ne     | Neon   | 20.180      | [He] 2s2 2p6          | 18          | 2      | noble gas
-
-<span style="color: var(--u-green);">✓ SQL queries executed successfully!</span>
-                    </div>
-                `;
-            } else {
-                outputElement.innerHTML += `
-                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
-<span style="color: var(--u-green);">✓ Code executed successfully!</span>
-
-(Output simulated for demonstration purposes)
-                    </div>
-                `;
-            }
-        }, 1500);
+        fetch("{% url 'code_editor:run_code' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": window.csrfToken
+            },
+            body: JSON.stringify({
+                code: code,
+                language: currentLanguage
+            }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            outputElement.innerHTML += `
+                <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+${data.output || '(No output)'}
+                </div>
+            `;
+        })
+        .catch(err => {
+            outputElement.innerHTML += `
+                <div style="color: red">Error running code: ${err}</div>
+            `;
+        });
     }
-    
-    // Clear editor function
+
     function clearEditor() {
         if (confirm("Are you sure you want to clear the editor? All code will be lost.")) {
             editor.setValue("");
@@ -839,8 +454,7 @@ atomic_number | symbol | name   | atomic_mass | electron_configuration | group_n
             `;
         }
     }
-    
-    // Save code function
+
     function saveCode() {
         const code = editor.getValue();
         const blob = new Blob([code], { type: 'text/plain' });

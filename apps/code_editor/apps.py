@@ -1,6 +1,3 @@
-from django.apps import AppConfig
+from django.contrib import admin
 
-
-class CodeEditorConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'code_editor'
+# Register your models here.

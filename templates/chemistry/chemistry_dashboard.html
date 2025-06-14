@@ -14,40 +14,48 @@
     <!-- Quick Stats -->
     <div class="row mb-5">
         <div class="col-md-3 mb-3">
-            <div class="card feature-card text-center">
-                <div class="card-body">
-                    <i class="fas fa-atom feature-icon" style="color: var(--u-green);"></i>
-                    <h4 style="color: var(--text-primary);">118</h4>
-                    <p style="color: var(--text-secondary);">Elements Available</p>
+            <a href="{% url 'chemistry:periodic_table' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card text-center h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <i class="fas fa-atom feature-icon" style="color: var(--u-green);"></i>
+                        <h4 style="color: var(--text-primary);">118</h4>
+                        <p style="color: var(--text-secondary);">Elements Available</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card feature-card text-center">
-                <div class="card-body">
-                    <i class="fas fa-calculator feature-icon" style="color: var(--s-yellow);"></i>
-                    <h4 style="color: var(--text-primary);">50+</h4>
-                    <p style="color: var(--text-secondary);">Calculations</p>
+            <a href="{% url 'chemistry:calculator' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card text-center h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <i class="fas fa-calculator feature-icon" style="color: var(--s-yellow);"></i>
+                        <h4 style="color: var(--text-primary);">50+</h4>
+                        <p style="color: var(--text-secondary);">Calculations</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card feature-card text-center">
-                <div class="card-body">
-                    <i class="fas fa-code feature-icon" style="color: var(--er-pink);"></i>
-                    <h4 style="color: var(--text-primary);">25+</h4>
-                    <p style="color: var(--text-secondary);">Code Examples</p>
+            <a href="{% url 'code_editor:code_editor' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card text-center h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <i class="fas fa-code feature-icon" style="color: var(--er-pink);"></i>
+                        <h4 style="color: var(--text-primary);">25+</h4>
+                        <p style="color: var(--text-secondary);">Code Examples</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card feature-card text-center">
-                <div class="card-body">
-                    <i class="fas fa-graduation-cap feature-icon" style="color: var(--ni-chrome);"></i>
-                    <h4 style="color: var(--text-primary);">10+</h4>
-                    <p style="color: var(--text-secondary);">Tutorials</p>
+            <a href="{% url 'quiz:tutorials' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card text-center h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <i class="fas fa-graduation-cap feature-icon" style="color: var(--ni-chrome);"></i>
+                        <h4 style="color: var(--text-primary);">10+</h4>
+                        <p style="color: var(--text-secondary);">Tutorials</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
     
@@ -60,66 +68,76 @@
         </div>
         {% for module in modules %}
         <div class="col-md-6 mb-4 fade-in">
-            <div class="card feature-card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ module.title }}</h5>
-                    <p class="card-text">{{ module.topics }} topics • {{ module.difficulty }}</p>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar" style="width: {% cycle '75' '60' '90' '30' %}%; background: var(--primary-gradient);"></div>
+            <a href="{% url 'quiz:quiz' module.slug %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ module.title }}</h5>
+                        <p class="card-text">{{ module.topics }} topics • {{ module.difficulty }}</p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" style="width: {% cycle '75' '60' '90' '30' %}%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <span class="btn btn-primary btn-sm">Take Quiz</span>
                     </div>
-                    <button class="btn btn-primary btn-sm">Start Learning</button>
                 </div>
-            </div>
+            </a>
         </div>
         {% empty %}
         <!-- If no modules are available, show sample modules -->
         <div class="col-md-6 mb-4 fade-in">
-            <div class="card feature-card">
-                <div class="card-body">
-                    <h5 class="card-title">Atoms and Elements</h5>
-                    <p class="card-text">8 topics • Beginner</p>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar" style="width: 75%; background: var(--primary-gradient);"></div>
+            <a href="{% url 'quiz:quiz_detail' module_slug='atoms-and-elements' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <h5 class="card-title">Atoms and Elements</h5>
+                        <p class="card-text">8 topics • Beginner</p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" style="width: 75%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <span class="btn btn-primary btn-sm">Take Quiz</span>
                     </div>
-                    <button class="btn btn-primary btn-sm">Start Learning</button>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-6 mb-4 fade-in">
-            <div class="card feature-card">
-                <div class="card-body">
-                    <h5 class="card-title">Chemical Bonding</h5>
-                    <p class="card-text">6 topics • Intermediate</p>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar" style="width: 60%; background: var(--primary-gradient);"></div>
+            <a href="{% url 'quiz:quiz_detail' module_slug='chemical-bonding' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <h5 class="card-title">Chemical Bonding</h5>
+                        <p class="card-text">6 topics • Intermediate</p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" style="width: 60%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <span class="btn btn-primary btn-sm">Take Quiz</span>
                     </div>
-                    <button class="btn btn-primary btn-sm">Start Learning</button>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-6 mb-4 fade-in">
-            <div class="card feature-card">
-                <div class="card-body">
-                    <h5 class="card-title">Stoichiometry</h5>
-                    <p class="card-text">10 topics • Advanced</p>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar" style="width: 90%; background: var(--primary-gradient);"></div>
+            <a href="{% url 'quiz:quiz_detail' module_slug='stoichiometry' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <h5 class="card-title">Stoichiometry</h5>
+                        <p class="card-text">10 topics • Advanced</p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" style="width: 90%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <span class="btn btn-primary btn-sm">Take Quiz</span>
                     </div>
-                    <button class="btn btn-primary btn-sm">Start Learning</button>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-6 mb-4 fade-in">
-            <div class="card feature-card">
-                <div class="card-body">
-                    <h5 class="card-title">Acids and Bases</h5>
-                    <p class="card-text">7 topics • Intermediate</p>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar" style="width: 30%; background: var(--primary-gradient);"></div>
+            <a href="{% url 'quiz:quiz_detail' module_slug='acids-and-bases' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body">
+                        <h5 class="card-title">Acids and Bases</h5>
+                        <p class="card-text">7 topics • Intermediate</p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" style="width: 30%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <span class="btn btn-primary btn-sm">Take Quiz</span>
                     </div>
-                    <button class="btn btn-primary btn-sm">Start Learning</button>
                 </div>
-            </div>
+            </a>
         </div>
         {% endfor %}
     </div>
@@ -132,34 +150,40 @@
             </h3>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card feature-card" onclick="window.location.href='{% url 'chemistry:calculator' %}'">
-                <div class="card-body text-center">
-                    <i class="fas fa-calculator feature-icon" style="color: var(--s-yellow);"></i>
-                    <h5 class="card-title">Chemistry Calculator</h5>
-                    <p class="card-text">Perform molecular weight, molarity, and pH calculations</p>
-                    <a href="{% url 'chemistry:calculator' %}" class="btn btn-primary mt-2">Open Calculator</a>
+            <a href="{% url 'chemistry:calculator' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calculator feature-icon" style="color: var(--s-yellow);"></i>
+                        <h5 class="card-title">Chemistry Calculator</h5>
+                        <p class="card-text">Perform molecular weight, molarity, and pH calculations</p>
+                        <span class="btn btn-primary mt-2">Open Calculator</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card feature-card" onclick="window.location.href='{% url 'chemistry:molecular_viewer' %}'">
-                <div class="card-body text-center">
-                    <i class="fas fa-atom feature-icon" style="color: var(--u-green);"></i>
-                    <h5 class="card-title">Molecular Viewer</h5>
-                    <p class="card-text">Visualize 3D molecular structures and bonds</p>
-                    <a href="{% url 'chemistry:molecular_viewer' %}" class="btn btn-primary mt-2">Open Viewer</a>
+            <a href="{% url 'chemistry:molecular_viewer' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-atom feature-icon" style="color: var(--u-green);"></i>
+                        <h5 class="card-title">Molecular Viewer</h5>
+                        <p class="card-text">Visualize 3D molecular structures and bonds</p>
+                        <span class="btn btn-primary mt-2">Open Viewer</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card feature-card" onclick="window.location.href='{% url 'code_editor:code_editor' %}'">
-                <div class="card-body text-center">
-                    <i class="fas fa-code feature-icon" style="color: var(--er-pink);"></i>
-                    <h5 class="card-title">Code Editor</h5>
-                    <p class="card-text">Write and execute chemistry-focused code</p>
-                    <a href="{% url 'code_editor:code_editor' %}" class="btn btn-primary mt-2">Open Editor</a>
+            <a href="{% url 'code_editor:code_editor' %}" style="text-decoration:none; color:inherit;">
+                <div class="card feature-card h-100" style="cursor:pointer;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-code feature-icon" style="color: var(--er-pink);"></i>
+                        <h5 class="card-title">Code Editor</h5>
+                        <p class="card-text">Write and execute chemistry-focused code</p>
+                        <span class="btn btn-primary mt-2">Open Editor</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 

@@ -5,4 +5,5 @@ app_name = "code_editor"
 
 urlpatterns = [
     path('', views.code_editor, name='code_editor'),
+    path('api/run/', views.run_code, name='run_code'),
 ]

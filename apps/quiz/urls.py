@@ -8,7 +8,8 @@ urlpatterns = [
     path('topic/<int:topic_id>/', views.topic_detail, name='topic_detail'),
     path('take/<int:topic_id>/', views.take_quiz, name='take_quiz'),
     path('results/<int:topic_id>/', views.quiz_results, name='quiz_results'),
-    
+    path('<slug:module_slug>/', views.quiz_detail, name='quiz_detail'),  # <-- renamed!
+
     # API endpoints - KEEP ONLY THESE
     path('api/topics/<int:module_id>/', views.get_topics, name='get_topics'),
     path('api/questions/<int:topic_id>/', views.get_quiz_questions, name='get_quiz_questions'),

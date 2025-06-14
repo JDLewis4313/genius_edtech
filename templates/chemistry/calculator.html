@@ -140,21 +140,14 @@ let currentTab = 'basic';
 
 function switchTab(tabName) {
     currentTab = tabName;
-    
-    // Update tab appearance
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    
-    // Update calculation options based on tab
     updateCalculationOptions();
 }
 
 function updateCalculationOptions() {
     const calculationType = document.getElementById('calculationType');
     calculationType.innerHTML = '';
-    
     const options = {
         basic: [
             {value: 'molar_mass', text: 'Molar Mass'},
@@ -176,23 +169,19 @@ function updateCalculationOptions() {
             {value: 'enthalpy', text: 'Enthalpy Change'}
         ]
     };
-    
     options[currentTab].forEach(option => {
         const optionElement = document.createElement('option');
         optionElement.value = option.value;
         optionElement.textContent = option.text;
         calculationType.appendChild(optionElement);
     });
-    
     updateInputFields();
 }
 
 function updateInputFields() {
     const calculationType = document.getElementById('calculationType').value;
     const inputFields = document.getElementById('inputFields');
-    
     let fieldsHTML = '';
-    
     switch(calculationType) {
         case 'molar_mass':
             fieldsHTML = `
@@ -201,77 +190,94 @@ function updateInputFields() {
                 <small class="text-muted">Enter chemical formula using proper capitalization</small>
             `;
             break;
-            
+        // ...rest unchanged...
         case 'molarity':
             fieldsHTML = `
                 <label for="moles" class="form-label">Moles of solute:</label>
                 <input type="number" id="moles" class="form-control" placeholder="e.g., 0.5" step="0.001">
-                
                 <label for="volume" class="form-label">Volume of solution (L):</label>
                 <input type="number" id="volume" class="form-control" placeholder="e.g., 1.0" step="0.001">
             `;
             break;
-            
         case 'ideal_gas':
             fieldsHTML = `
                 <label for="pressure" class="form-label">Pressure (atm):</label>
                 <input type="number" id="pressure" class="form-control" placeholder="e.g., 1.0" step="0.001">
-                
                 <label for="volume" class="form-label">Volume (L):</label>
                 <input type="number" id="volume" class="form-control" placeholder="e.g., 22.4" step="0.001">
-                
                 <label for="temperature" class="form-label">Temperature (K):</label>
                 <input type="number" id="temperature" class="form-control" placeholder="e.g., 273.15" step="0.1">
             `;
             break;
-            
         case 'ph':
             fieldsHTML = `
                 <label for="concentration" class="form-label">H+ Concentration (M):</label>
                 <input type="number" id="concentration" class="form-control" placeholder="e.g., 1e-7" step="1e-14">
             `;
             break;
+    case 'heat_capacity':
+        fieldsHTML = `
+            <label for="q" class="form-label">Heat absorbed (q) [Joules]:</label>
+            <input type="number" id="q" class="form-control" placeholder="e.g., 150" step="0.01">
+            <label for="mass" class="form-label">Mass (m) [grams]:</label>
+            <input type="number" id="mass" class="form-control" placeholder="e.g., 50" step="0.01">
+            <label for="deltaT" class="form-label">Temperature Change (ΔT) [°C]:</label>
+            <input type="number" id="deltaT" class="form-control" placeholder="e.g., 10" step="0.01">
+        `;
+        break;
+    case 'enthalpy':
+        fieldsHTML = `
+            <label for="products" class="form-label">Sum of Enthalpies (products) [kJ/mol]:</label>
+            <input type="number" id="products" class="form-control" placeholder="e.g., -393.5" step="0.01">
+            <label for="reactants" class="form-label">Sum of Enthalpies (reactants) [kJ/mol]:</label>
+            <input type="number" id="reactants" class="form-control" placeholder="e.g., 0" step="0.01">
+        `;
+        break;
     }
-    
     inputFields.innerHTML = fieldsHTML;
 }
 
 function performCalculation() {
     const calculationType = document.getElementById('calculationType').value;
     const resultsDiv = document.getElementById('results');
-    
     try {
+        if (calculationType === "molar_mass") {
+            const formula = document.getElementById('formula').value;
+            if (!formula) throw new Error('Please enter a chemical formula');
+            // Send AJAX to backend for real calculation!
+            resultsDiv.innerHTML = `<div class="alert alert-info">Calculating molar mass for ${formula}...</div>`;
+            fetch("{% url 'chemistry:ajax_calculate_molar_mass' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: JSON.stringify({ formula })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    resultsDiv.innerHTML = `
+                        <h5>Molar Mass Calculation</h5>
+                        <p><strong>Formula:</strong> ${data.formula}</p>
+                        <p><strong>Molar Mass:</strong> ${data.molar_mass.toFixed(3)} g/mol</p>
+                        <p><strong>Steps:</strong></p>
+                        <ol>${data.steps.map(step => `<li>${step}</li>`).join('')}</ol>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                }
+            }).catch(err => {
+                resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+            });
+            return;
+        }
+        // ...other cases as before...
         let result = '';
-        
         switch(calculationType) {
-            case 'molar_mass':
-                const formula = document.getElementById('formula').value;
-                if (!formula) throw new Error('Please enter a chemical formula');
-                
-                // Simple demonstration - in a real app this would call a backend API
-                const molarMass = calculateMolarMass(formula);
-                
-                resultsDiv.innerHTML = `
-                    <h5>Molar Mass Calculation</h5>
-                    <p><strong>Formula:</strong> ${formula}</p>
-                    <p><strong>Molar Mass:</strong> ${molarMass.toFixed(3)} g/mol</p>
-                    <p><strong>Steps:</strong></p>
-                    <ol>
-                        <li>Parse the chemical formula to identify elements and their counts</li>
-                        <li>Look up atomic weights for each element</li>
-                        <li>Multiply each element's atomic weight by its count in the formula</li>
-                        <li>Sum all contributions to get the total molar mass</li>
-                    </ol>
-                `;
-                break;
-                
             case 'molarity':
                 const moles = parseFloat(document.getElementById('moles').value);
                 const volume = parseFloat(document.getElementById('volume').value);
-                
                 if (isNaN(moles) || isNaN(volume)) throw new Error('Please enter valid numbers');
                 if (volume <= 0) throw new Error('Volume must be greater than 0');
-                
                 const molarity = moles / volume;
                 resultsDiv.innerHTML = `
                     <h5>Molarity Calculation</h5>
@@ -281,19 +287,13 @@ function performCalculation() {
                     <p><strong>Formula:</strong> M = n / V</p>
                 `;
                 break;
-                
             case 'ideal_gas':
                 const pressure = parseFloat(document.getElementById('pressure').value);
                 const gasVolume = parseFloat(document.getElementById('volume').value);
                 const temperature = parseFloat(document.getElementById('temperature').value);
-                
-                if (isNaN(pressure) || isNaN(gasVolume) || isNaN(temperature)) {
-                    throw new Error('Please enter valid numbers');
-                }
-                
-                const R = 0.08206; // L⋅atm/(mol⋅K)
+                if (isNaN(pressure) || isNaN(gasVolume) || isNaN(temperature)) throw new Error('Please enter valid numbers');
+                const R = 0.08206;
                 const calculatedMoles = (pressure * gasVolume) / (R * temperature);
-                
                 resultsDiv.innerHTML = `
                     <h5>Ideal Gas Law Calculation</h5>
                     <p><strong>Pressure:</strong> ${pressure} atm</p>
@@ -303,17 +303,11 @@ function performCalculation() {
                     <p><strong>Formula:</strong> PV = nRT</p>
                 `;
                 break;
-                
             case 'ph':
                 const concentration = parseFloat(document.getElementById('concentration').value);
-                
-                if (isNaN(concentration) || concentration <= 0) {
-                    throw new Error('Please enter a valid positive concentration');
-                }
-                
+                if (isNaN(concentration) || concentration <= 0) throw new Error('Please enter a valid positive concentration');
                 const ph = -Math.log10(concentration);
                 const poh = 14 - ph;
-                
                 resultsDiv.innerHTML = `
                     <h5>pH Calculation</h5>
                     <p><strong>H+ Concentration:</strong> ${concentration.toExponential(2)} M</p>
@@ -322,11 +316,38 @@ function performCalculation() {
                     <p><strong>Formula:</strong> pH = -log[H+]</p>
                 `;
                 break;
-                
+    case 'heat_capacity':
+        const q = parseFloat(document.getElementById('q').value);
+        const mass = parseFloat(document.getElementById('mass').value);
+        const deltaT = parseFloat(document.getElementById('deltaT').value);
+        if (isNaN(q) || isNaN(mass) || isNaN(deltaT)) throw new Error('Please enter valid values for all fields');
+        if (mass === 0 || deltaT === 0) throw new Error('Mass and ΔT must not be zero');
+        const c = q / (mass * deltaT);
+        resultsDiv.innerHTML = `
+            <h5>Heat Capacity Calculation</h5>
+            <p><strong>q (heat):</strong> ${q} J</p>
+            <p><strong>m (mass):</strong> ${mass} g</p>
+            <p><strong>ΔT (temp change):</strong> ${deltaT} °C</p>
+            <p><strong>Specific Heat (c):</strong> ${c.toFixed(4)} J/g°C</p>
+            <p><strong>Formula:</strong> c = q / (m × ΔT)</p>
+        `;
+        break;
+    case 'enthalpy':
+        const products = parseFloat(document.getElementById('products').value);
+        const reactants = parseFloat(document.getElementById('reactants').value);
+        if (isNaN(products) || isNaN(reactants)) throw new Error('Please enter valid values for all fields');
+        const deltaH = products - reactants;
+        resultsDiv.innerHTML = `
+            <h5>Enthalpy Change Calculation</h5>
+            <p><strong>Sum of Enthalpies (products):</strong> ${products} kJ/mol</p>
+            <p><strong>Sum of Enthalpies (reactants):</strong> ${reactants} kJ/mol</p>
+            <p><strong>ΔH (Enthalpy Change):</strong> ${deltaH.toFixed(2)} kJ/mol</p>
+            <p><strong>Formula:</strong> ΔH = ΣH(products) - ΣH(reactants)</p>
+        `;
+        break;
             default:
                 throw new Error('Unknown calculation type');
         }
-        
     } catch (error) {
         resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
     }
@@ -337,56 +358,25 @@ function clearCalculation() {
         <h5>Results will appear here</h5>
         <p class="text-muted">Enter values and click Calculate to see results</p>
     `;
-    
-    // Clear all input fields
-    document.querySelectorAll('.form-control').forEach(input => {
-        input.value = '';
-    });
+    document.querySelectorAll('.form-control').forEach(input => input.value = '');
 }
 
-// Simple molecular weight calculation function (demonstration only)
-function calculateMolarMass(formula) {
-    // This is a simplified version - a real implementation would parse the formula
-    const atomicWeights = {
-        'H': 1.008,
-        'He': 4.0026,
-        'Li': 6.94,
-        'Be': 9.0122,
-        'B': 10.81,
-        'C': 12.011,
-        'N': 14.007,
-        'O': 15.999,
-        'F': 18.998,
-        'Ne': 20.180,
-        'Na': 22.990,
-        'Mg': 24.305,
-        'Al': 26.982,
-        'Si': 28.085,
-        'P': 30.974,
-        'S': 32.06,
-        'Cl': 35.45,
-        'Ar': 39.95,
-        'K': 39.098,
-        'Ca': 40.078
-    };
-    
-    // Simple parser for demonstration
-    // In a real app, we would use a more sophisticated parser
-    if (formula === 'H2O') {
-        return 2 * atomicWeights['H'] + atomicWeights['O'];
-    } else if (formula === 'CO2') {
-        return atomicWeights['C'] + 2 * atomicWeights['O'];
-    } else if (formula === 'NaCl') {
-        return atomicWeights['Na'] + atomicWeights['Cl'];
-    } else if (formula === 'C6H12O6') {
-        return 6 * atomicWeights['C'] + 12 * atomicWeights['H'] + 6 * atomicWeights['O'];
-    } else {
-        // For demo purposes, return a reasonable value
-        return 100.0;
+// ---- Helper to get CSRF token for AJAX ----
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
 }
 
-// Initialize the calculator
 document.addEventListener('DOMContentLoaded', function() {
     updateInputFields();
 });

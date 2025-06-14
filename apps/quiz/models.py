@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class Module(models.Model):
     """Learning module containing multiple topics"""
     title = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)  # <-- add this slug!
     description = models.TextField()
     order = models.IntegerField(default=1)
     

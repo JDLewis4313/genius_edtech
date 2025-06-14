@@ -18,11 +18,13 @@
     <style>
         :root {
             /* GeNiUS Element Colors */
-            --ge-asian: #B4544D;        /* Germanium - Asian paints- */
-            --ni-chrome: #8FA8B2;        /* Nickel - Chrome metallic */
-            --u-green: #00B894;          /* Uranium - Vibrant radioactive green */
-            --s-yellow: #FDCB6E;         /* Sulfur - Bright yellow */
-            --es-silver: #C8D5E3;          /* Einsteinium - Metallic silver-blue */
+            --ge-silver: #C8D5E3;          /* Germanium - Metallic silver-blue */
+            --ni-chrome: #8FA8B2;          /* Nickel - Chrome metallic */
+            --u-green: #00B894;            /* Uranium - Vibrant radioactive green */
+            --s-yellow: #FDCB6E;           /* Sulfur - Bright yellow */
+            --er-pink: #E17055;            /* Einsteinium - Pink (for accent) */
+            --es-silver: #A6ACAF;          /* Einsteinium - Silver/grey accent */
+            --tc-blue: #4DA3FF;            /* Technetium - Blue accent */
             
             /* Enhanced Palette */
             --primary-gradient: linear-gradient(135deg, var(--u-green) 0%, var(--s-yellow) 100%);
@@ -45,14 +47,14 @@
             --genius-i: var(--s-yellow);  /* I for interactive */
             --genius-u: var(--u-green);   /* U for Uranium */
             --genius-s: var(--s-yellow);  /* S for Sulfur */
+            --genius-es: var(--es-silver);/* Es for Einsteinium */
+            --genius-tc: var(--tc-blue);  /* Tc for Technetium */
         }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
             font-family: 'Inter', sans-serif;
             background: var(--dark-gradient);
@@ -60,7 +62,6 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-        
         /* Animated background particles */
         body::before {
             content: '';
@@ -77,14 +78,12 @@
             z-index: -1;
             animation: backgroundFlow 20s ease-in-out infinite;
         }
-        
         @keyframes backgroundFlow {
             0%, 100% { transform: scale(1) rotate(0deg); }
             25% { transform: scale(1.1) rotate(90deg); }
             50% { transform: scale(1.05) rotate(180deg); }
             75% { transform: scale(1.15) rotate(270deg); }
         }
-        
         /* Navbar Styling */
         .navbar {
             background: rgba(10, 14, 39, 0.95) !important;
@@ -94,7 +93,6 @@
             box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
             transition: all 0.3s ease;
         }
-        
         .navbar-brand {
             font-weight: 800;
             font-size: 1.8rem;
@@ -106,30 +104,25 @@
             letter-spacing: 1px;
             transition: all 0.3s ease;
         }
-        
         .navbar-brand:hover {
             transform: scale(1.05);
             filter: brightness(1.2);
         }
-        
         .genius-logo {
             display: inline-block;
             margin-right: 10px;
             animation: pulse 2s infinite;
         }
-        
         .genius-text .letter-g { color: var(--genius-g); }
         .genius-text .letter-e { color: var(--genius-e); }
         .genius-text .letter-n { color: var(--genius-n); }
         .genius-text .letter-i { color: var(--genius-i); }
         .genius-text .letter-u { color: var(--genius-u); }
         .genius-text .letter-s { color: var(--genius-s); }
-        
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
-        
         .nav-link {
             color: var(--text-secondary) !important;
             font-weight: 500;
@@ -141,7 +134,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .nav-link::before {
             content: '';
             position: absolute;
@@ -153,17 +145,14 @@
             transition: all 0.4s ease;
             z-index: -1;
         }
-        
         .nav-link:hover {
             color: var(--bg-primary) !important;
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);
         }
-        
         .nav-link:hover::before {
             left: 0;
         }
-        
         .dropdown-menu {
             background: rgba(10, 14, 39, 0.95) !important;
             backdrop-filter: blur(20px);
@@ -172,22 +161,19 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
             padding: 15px 0;
         }
-        
         .dropdown-item {
-            color: var(--text-secondary) !important;
+            color: var(--text-secondary, #fff) !important;
             padding: 12px 25px;
             margin: 5px 15px;
             border-radius: 10px;
             transition: all 0.3s ease;
             font-weight: 500;
         }
-        
         .dropdown-item:hover {
             background: var(--primary-gradient) !important;
             color: var(--bg-primary) !important;
             transform: translateX(10px);
         }
-        
         /* Card Styling */
         .card {
             background: var(--bg-card);
@@ -198,7 +184,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .card::before {
             content: '';
             position: absolute;
@@ -215,16 +200,13 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
         .card:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 20px 60px rgba(0, 184, 148, 0.2);
         }
-        
         .card:hover::before {
             opacity: 1;
         }
-        
         .card-header {
             background: var(--primary-gradient) !important;
             color: var(--bg-primary) !important;
@@ -233,7 +215,6 @@
             border-radius: 18px 18px 0 0 !important;
             padding: 20px 25px;
         }
-        
         /* Button Styling */
         .btn-primary {
             background: var(--primary-gradient);
@@ -247,7 +228,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .btn-primary::before {
             content: '';
             position: absolute;
@@ -259,17 +239,14 @@
             transition: all 0.3s ease;
             z-index: -1;
         }
-        
         .btn-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 30px rgba(0, 184, 148, 0.4);
             color: var(--bg-primary);
         }
-        
         .btn-primary:hover::before {
             left: 0;
         }
-        
         .btn-secondary {
             background: var(--secondary-gradient);
             border: 2px solid var(--ni-chrome);
@@ -279,14 +256,12 @@
             border-radius: 25px;
             transition: all 0.3s ease;
         }
-        
         .btn-secondary:hover {
             background: var(--accent-gradient);
             border-color: var(--er-pink);
             transform: translateY(-2px);
             color: var(--bg-primary);
         }
-        
         /* Hero Section */
         .hero-section {
             padding: 120px 0;
@@ -294,7 +269,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .hero-title {
             font-size: 4rem;
             font-weight: 800;
@@ -302,7 +276,6 @@
             line-height: 1.2;
             position: relative;
         }
-        
         .hero-title .genius-highlight {
             background: var(--primary-gradient);
             -webkit-background-clip: text;
@@ -310,12 +283,10 @@
             color: transparent;
             animation: shimmer 3s ease-in-out infinite;
         }
-        
         @keyframes shimmer {
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.3); }
         }
-        
         .hero-subtitle {
             font-size: 1.4rem;
             color: var(--text-secondary);
@@ -323,7 +294,6 @@
             font-weight: 400;
             line-height: 1.6;
         }
-        
         /* Element Badge Styling */
         .element-badge {
             display: inline-block;
@@ -337,49 +307,46 @@
             position: relative;
             overflow: hidden;
         }
-        
         .element-ge {
             border-color: var(--ge-silver);
             color: var(--ge-silver);
             background: rgba(200, 213, 227, 0.1);
         }
-        
         .element-ni {
             border-color: var(--ni-chrome);
             color: var(--ni-chrome);
             background: rgba(143, 168, 178, 0.1);
         }
-        
         .element-u {
             border-color: var(--u-green);
             color: var(--u-green);
             background: rgba(0, 184, 148, 0.1);
         }
-        
         .element-s {
             border-color: var(--s-yellow);
             color: var(--s-yellow);
             background: rgba(253, 203, 110, 0.1);
         }
-        
-        .element-er {
-            border-color: var(--er-pink);
-            color: var(--er-pink);
-            background: rgba(225, 112, 85, 0.1);
+        .element-es {
+            border-color: var(--es-silver);
+            color: var(--es-silver);
+            background: rgba(166, 172, 175, 0.1);
         }
-        
+        .element-tc {
+            border-color: var(--tc-blue);
+            color: var(--tc-blue);
+            background: rgba(77, 163, 255, 0.1);
+        }
         .element-badge:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-        
         /* Feature Cards */
         .feature-card {
             height: 100%;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
         }
-        
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1.5rem;
@@ -389,34 +356,27 @@
             color: transparent;
             transition: all 0.3s ease;
         }
-        
         .feature-card:hover .feature-icon {
             transform: scale(1.2) rotate(5deg);
         }
-        
         /* Text Styling */
         .card-title {
             color: var(--text-primary) !important;
             font-weight: 600 !important;
         }
-        
         .card-text {
             color: var(--text-secondary) !important;
             line-height: 1.5 !important;
         }
-        
         .card-body {
             color: var(--text-primary) !important;
         }
-        
         .card-body h1, .card-body h2, .card-body h3, .card-body h4, .card-body h5, .card-body h6 {
             color: var(--text-primary) !important;
         }
-        
         .card-body p {
             color: var(--text-secondary) !important;
         }
-        
         /* Footer */
         footer {
             background: var(--bg-primary);
@@ -426,7 +386,6 @@
             margin-top: 6rem;
             position: relative;
         }
-        
         .footer-link {
             color: var(--text-secondary);
             text-decoration: none;
@@ -435,32 +394,26 @@
             align-items: center;
             gap: 8px;
         }
-        
         .footer-link:hover {
             color: var(--u-green);
             transform: translateX(5px);
         }
-        
         /* Responsive Design */
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.8rem;
             }
-            
             .hero-subtitle {
                 font-size: 1.2rem;
             }
-            
             .navbar-brand {
                 font-size: 1.5rem;
             }
-            
             .element-badge {
                 padding: 6px 12px;
                 font-size: 0.8rem;
             }
         }
-        
         /* Utility Classes */
         .text-gradient {
             background: var(--primary-gradient);
@@ -468,26 +421,21 @@
             background-clip: text;
             color: transparent;
         }
-        
         .bg-glass {
             background: rgba(26, 31, 58, 0.8);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
         .border-glow {
             box-shadow: 0 0 20px rgba(0, 184, 148, 0.3);
         }
-        
         .hover-lift:hover {
             transform: translateY(-5px);
         }
-        
         /* Loading animations */
         .fade-in {
             animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -498,18 +446,15 @@
                 transform: translateY(0);
             }
         }
-        
         .stagger-1 { animation-delay: 0.1s; }
         .stagger-2 { animation-delay: 0.2s; }
         .stagger-3 { animation-delay: 0.3s; }
         .stagger-4 { animation-delay: 0.4s; }
-        
         /* Genius branding elements */
         .genius-element {
             position: relative;
             display: inline-block;
         }
-        
         .genius-element::after {
             content: attr(data-element);
             position: absolute;
@@ -519,44 +464,6 @@
             font-size: 0.6em;
             opacity: 0.7;
             font-weight: 400;
-        }
-        
-        /* Form Styling */
-        .form-label {
-            color: var(--text-primary) !important;
-            font-weight: 500 !important;
-        }
-        
-        .form-control {
-            background: rgba(26, 31, 58, 0.8) !important;
-            border: 2px solid var(--ni-chrome) !important;
-            color: var(--text-primary) !important;
-            border-radius: 10px !important;
-        }
-        
-        .form-control:focus {
-            background: rgba(26, 31, 58, 0.9) !important;
-            border-color: var(--u-green) !important;
-            box-shadow: 0 0 15px rgba(0, 184, 148, 0.3) !important;
-            color: var(--text-primary) !important;
-        }
-        
-        .form-control::placeholder {
-            color: var(--text-muted) !important;
-        }
-        
-        .form-select {
-            background: rgba(26, 31, 58, 0.8) !important;
-            border: 2px solid var(--ni-chrome) !important;
-            color: var(--text-primary) !important;
-            border-radius: 10px !important;
-        }
-        
-        .form-select:focus {
-            background: rgba(26, 31, 58, 0.9) !important;
-            border-color: var(--u-green) !important;
-            box-shadow: 0 0 15px rgba(0, 184, 148, 0.3) !important;
-            color: var(--text-primary) !important;
         }
         {% block extra_css %}{% endblock %}
     </style>
@@ -574,11 +481,9 @@
                 </span>
                 <span style="margin-left: 10px; font-weight: 400; font-size: 0.8em;">Ed Tech</span>
             </a>
-            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -590,7 +495,6 @@
                         <a class="nav-link dropdown-toggle {% if 'quiz' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-graduation-cap"></i> Education
                         </a>
-
                         <ul class="dropdown-menu">
                             <li>
                                 <a class="dropdown-item" href="{% url 'quiz:tutorials' %}">
@@ -624,11 +528,11 @@
                                     <i class="fas fa-atom" style="color: var(--ni-chrome);"></i> Molecular Viewer
                                 </a>
                             </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'chemistry:periodic_table' %}">
-                <i class="fas fa-table" style="color: var(--u-green);"></i> Periodic Table
-            </a>
-        </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'chemistry:periodic_table' %}">
+                                    <i class="fas fa-table" style="color: var(--u-green);"></i> Periodic Table
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -681,10 +585,12 @@
                         Transforming STEM education through innovative technology and real-world connections, empowering socioeconomically disadvantaged students to master complex scientific concepts.
                     </p>
                     <div class="mb-4">
-                        <span class="element-badge element-ge">Ge - Germanium</span>
-                        <span class="element-badge element-ni">Ni - Nickel</span>
-                        <span class="element-badge element-u">U - Uranium</span>
-                        <span class="element-badge element-s">S - Sulfur</span>
+                        <span class="element-badge element-ge">Ge - Growth</span>
+                        <span class="element-badge element-ni">Ni - Endurance</span>
+                        <span class="element-badge element-u">U - Energy</span>
+                        <span class="element-badge element-s">S - Success</span>
+                        <span class="element-badge element-es">Es - Intelligence</span>
+                        <span class="element-badge element-tc">Tc - Innovation</span>
                     </div>
                 </div>
                 <div class="col-md-4 fade-in stagger-2">
@@ -722,7 +628,6 @@
                             <li>Adaptive learning systems</li>
                             <li>Real-world connections</li>
                         </ul>
-                        
                         <div class="mt-4 p-3 bg-glass border-glow" style="border-radius: 10px;">
                             <small>
                                 <i class="fas fa-flask" style="color: var(--u-green);"></i>
@@ -734,9 +639,7 @@
                     </div>
                 </div>
             </div>
-            
             <hr style="border: 1px solid var(--u-green); margin: 3rem 0 2rem 0; opacity: 0.3;">
-            
             <div class="row fade-in stagger-4">
                 <div class="col-12 text-center">
                     <p class="mb-2" style="color: var(--text-secondary);">
@@ -774,7 +677,6 @@
             });
         });
     </script>
-    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

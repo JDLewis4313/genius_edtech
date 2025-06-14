@@ -9,4 +9,5 @@ urlpatterns = [
     path('molecular-viewer/', views.molecular_viewer, name='molecular_viewer'),
     path('periodic-table/', views.periodic_table, name='periodic_table'),
     path('element/<int:atomic_number>/', views.element_detail, name='element_detail'),
+    path('ajax/calculate-molar-mass/', views.calculate_molar_mass, name='ajax_calculate_molar_mass'), 
 ]
