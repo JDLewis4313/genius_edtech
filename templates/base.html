@@ -153,6 +153,40 @@
         .nav-link:hover::before {
             left: 0;
         }
+        
+        /* Auth buttons special styling */
+        .navbar-nav .btn-auth {
+            margin-left: 10px;
+            padding: 8px 20px !important;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .navbar-nav .btn-auth.btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: var(--bg-primary) !important;
+        }
+        .navbar-nav .btn-auth.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+        
+        /* User dropdown styling */
+        .user-dropdown {
+            background: var(--primary-gradient);
+            padding: 8px 20px !important;
+            border-radius: 25px;
+            color: var(--bg-primary) !important;
+            margin-left: 10px;
+        }
+        .user-dropdown:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+        .user-dropdown::after {
+            border-top-color: var(--bg-primary);
+        }
+        
         .dropdown-menu {
             background: rgba(10, 14, 39, 0.95) !important;
             backdrop-filter: blur(20px);
@@ -174,6 +208,31 @@
             color: var(--bg-primary) !important;
             transform: translateX(10px);
         }
+        .dropdown-item i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        /* Navbar responsive fixes */
+        @media (max-width: 991px) {
+            .navbar-nav {
+                padding: 20px 0;
+            }
+            .nav-link {
+                margin: 5px 0;
+                display: block;
+            }
+            .navbar-nav .btn-auth {
+                margin: 10px 0;
+                width: 100%;
+            }
+            .user-dropdown {
+                margin: 10px 0;
+                width: 100%;
+                text-align: left;
+            }
+        }
+        
         /* Card Styling */
         .card {
             background: var(--bg-card);
@@ -491,13 +550,14 @@
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {% if 'quiz' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'quiz' in request.path or 'tutorials' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-graduation-cap"></i> Education
                         </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="{% url 'quiz:tutorials' %}">
+                                <a class="dropdown-item" href="{% url 'tutorials:tutorial_list' %}">
                                     <i class="fas fa-book-open" style="color: var(--u-green);"></i> Tutorials
                                 </a>
                             </li>
@@ -540,16 +600,57 @@
                             <i class="fas fa-code"></i> Code Editor
                         </a>
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">
                             <i class="fas fa-info-circle"></i> About
                         </a>
                     </li>
+
+
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">
                             <i class="fas fa-envelope"></i> Contact
                         </a>
                     </li>
+                    
+                    <!-- Authentication Section -->
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle user-dropdown" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:profile' %}">
+                                        <i class="fas fa-user"></i> My Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'tutorials:my_tutorials' %}">
+                                        <i class="fas fa-graduation-cap"></i> My Tutorials
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" style="border-color: var(--text-muted);"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:logout' %}">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-auth" href="{% url 'users:register' %}">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -560,7 +661,7 @@
         {% if messages %}
             <div class="container mt-3">
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-glow bg-glass" role="alert">
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-glow bg-glass" role="alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -602,7 +703,7 @@
                             </a>
                         </li>
                         <li class="mb-3">
-                            <a href="{% url 'quiz:tutorials' %}" class="footer-link">
+                            <a href="{% url 'tutorials:tutorial_list' %}" class="footer-link">
                                 <i class="fas fa-graduation-cap"></i> Learning Tutorials
                             </a>
                         </li>

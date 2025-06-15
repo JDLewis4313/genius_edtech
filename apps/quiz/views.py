@@ -3,9 +3,6 @@ from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
 from .models import Module, Topic, Question, Choice, UserProgress
 
-def tutorials(request):
-    modules = Module.objects.all().prefetch_related('topics')
-    return render(request, 'quiz/tutorials.html', {'modules': modules})
 
 def quiz(request):
     modules = Module.objects.all().prefetch_related('topics')

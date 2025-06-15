@@ -42,11 +42,12 @@ INSTALLED_APPS = [
     'django_extensions',
 
     # Project apps
-    'core',
-    'chemistry',
-    'quiz',
-    'code_editor',
-    'users',
+    'apps.core',
+    'apps.chemistry',
+    'apps.quiz',
+    'apps.code_editor',
+    'apps.users',
+    'apps.tutorials',
 ]
 
 MIDDLEWARE = [

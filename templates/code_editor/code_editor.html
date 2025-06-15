@@ -127,11 +127,59 @@
         margin-bottom: 15px;
         font-size: 0.95rem;
     }
+    
+    /* Tutorial Integration Styles */
+    .tutorial-banner {
+        background: var(--primary-gradient);
+        color: var(--bg-primary);
+        padding: 15px 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .tutorial-banner h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+    
+    .tutorial-banner .btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid white;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .tutorial-banner .btn:hover {
+        background: white;
+        color: var(--u-green);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-5">
+    <!-- Tutorial Banner (if coming from tutorial) -->
+    {% if tutorial %}
+    <div class="tutorial-banner fade-in">
+        <div>
+            <h3><i class="fas fa-graduation-cap"></i> {{ tutorial.title }}</h3>
+            <small>{{ tutorial.category.name }} - {{ tutorial.get_difficulty_display }}</small>
+        </div>
+        <div>
+            <button class="btn btn-sm" onclick="loadTutorialTemplate('starter')">
+                <i class="fas fa-redo"></i> Reset Code
+            </button>
+            <a href="{% url 'tutorials:tutorial_detail' tutorial.slug %}" class="btn btn-sm">
+                <i class="fas fa-book"></i> Back to Tutorial
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
     <div class="text-center mb-5 fade-in">
         <h1 class="text-gradient mb-3">
             <i class="fas fa-code"></i> GeNiUS Code Lab
@@ -156,6 +204,24 @@
             </div>
         </div>
         <div class="col-lg-4 col-md-6">
+            <div class="card template-card" onclick="loadTemplate('stoichiometry')">
+                <div class="card-body">
+                    <h4 class="template-title">Stoichiometry Calculator</h4>
+                    <p class="template-description">Balance equations and calculate reactants/products</p>
+                    <span class="badge bg-primary">Python</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card template-card" onclick="loadTemplate('ph_calculator')">
+                <div class="card-body">
+                    <h4 class="template-title">pH Calculator</h4>
+                    <p class="template-description">Calculate pH, pOH, and acid-base equilibria</p>
+                    <span class="badge bg-primary">Python</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
             <div class="card template-card" onclick="loadTemplate('equation_parser')">
                 <div class="card-body">
                     <h4 class="template-title">Chemical Equation Parser</h4>
@@ -173,6 +239,15 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card template-card" onclick="loadTemplate('gas_laws')">
+                <div class="card-body">
+                    <h4 class="template-title">Gas Law Calculator</h4>
+                    <p class="template-description">Ideal gas law and other gas calculations</p>
+                    <span class="badge bg-primary">Python</span>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Code Editor -->
@@ -183,17 +258,13 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h4><i class="fas fa-edit"></i> Code Editor</h4>
                         <div>
-                            <button class="language-tab active" onclick="switchLanguage('python')">Python</button>
-                            <button class="language-tab" onclick="switchLanguage('javascript')">JavaScript</button>
-                            <button class="language-tab" onclick="switchLanguage('sql')">SQL</button>
+                            <button class="language-tab active" onclick="switchLanguage(event, 'python')">Python</button>
+                            <button class="language-tab" onclick="switchLanguage(event, 'javascript')">JavaScript</button>
+                            <button class="language-tab" onclick="switchLanguage(event, 'sql')">SQL</button>
                         </div>
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <!-- Editor container, default text begin -->
-
-                    <!-- Editor container, default text end -->
-
                     <div id="editor" class="code-editor"></div>
                 </div>
                 <div class="card-footer">
@@ -212,6 +283,11 @@
                             <button class="action-btn btn-save" onclick="saveCode()">
                                 <i class="fas fa-save"></i> Save
                             </button>
+                            {% if user.is_authenticated and tutorial %}
+                            <button class="action-btn btn-save" onclick="saveTutorialProgress()">
+                                <i class="fas fa-cloud-upload-alt"></i> Save Progress
+                            </button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -232,15 +308,11 @@
                             <i class="fas fa-info-circle me-2"></i>
                             <span>Ready to execute your chemistry code!</span>
                         </div>
-                        <div class="mt-4" style="color: var(--text-secondary);">
-                            <strong>Features:</strong>
-                            <ul class="mt-2">
-                                <li>Fully editable code editor</li>
-                                <li>Multiple language support</li>
-                                <li>Chemistry code templates</li>
-                                <li>Save/Load functionality</li>
-                            </ul>
+                        {% if tutorial %}
+                        <div class="mt-3" style="color: var(--text-secondary);">
+                            <strong>Tutorial Mode:</strong> Write code to complete "{{ tutorial.title }}"
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -257,24 +329,25 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h5>Chemistry Code Examples</h5>
+                            <h5>Available Libraries & Constants</h5>
+                            <p><strong>Python:</strong> math, statistics, collections, json, decimal, fractions</p>
+                            <p><strong>Chemistry Constants:</strong></p>
                             <ul>
-                                <li>Molecular weight calculation</li>
-                                <li>Balancing chemical equations</li>
-                                <li>Stoichiometry calculations</li>
-                                <li>pH and acid-base calculations</li>
-                                <li>Thermodynamics simulations</li>
+                                <li>AVOGADRO = 6.022×10²³</li>
+                                <li>GAS_CONSTANT = 8.314 J/(mol·K)</li>
+                                <li>FARADAY = 96485 C/mol</li>
+                                <li>atomic_masses dictionary</li>
                             </ul>
+                            <p><strong>SQL:</strong> Pre-loaded elements and compounds tables</p>
                         </div>
                         <div class="col-md-6">
-                            <h5>Educational Purpose</h5>
+                            <h5>Security Notice</h5>
                             <p>
-                                This code editor is designed to help you learn chemistry concepts through coding. 
-                                By writing and executing code, you can gain a deeper understanding of chemical principles 
-                                and develop computational thinking skills.
+                                For security reasons, file operations, network requests, and system calls are disabled. 
+                                Focus on computational chemistry and data analysis within the provided environment.
                             </p>
-                            <a href="{% url 'quiz:tutorials' %}" class="btn btn-primary mt-2">
-                                <i class="fas fa-book-open me-2"></i> View Tutorials
+                            <a href="{% url 'tutorials:tutorial_list' %}" class="btn btn-primary mt-2">
+                                <i class="fas fa-book-open me-2"></i> Browse All Tutorials
                             </a>
                         </div>
                     </div>
@@ -288,7 +361,7 @@
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.min.js"></script>
 <script>
-    // CSRF token helper (required for Django POST)
+    // CSRF token helper
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -307,50 +380,393 @@
 
     let editor;
     let currentLanguage = 'python';
+    const tutorialSlug = '{{ tutorial_slug|default:"" }}';
 
-    // Default code for the editor
-    const defaultCode = {
-        python: `# Welcome to GeNiUS Code Lab! 🧪🔬
-# Calculate molecular weight of water (H2O)
+    // Template code snippets
+    const codeTemplates = {
+        molecular_weight: {
+            language: 'python',
+            code: `# Molecular Weight Calculator
+# Calculate the molecular weight of any chemical compound
 
-def calculate_molecular_weight():
-    # Atomic masses (g/mol)
-    H = 1.008  # Hydrogen
-    O = 15.999 # Oxygen
+def parse_formula(formula):
+    """Parse a chemical formula and return element counts."""
+    import re
+    # Match element symbols and their counts
+    pattern = r'([A-Z][a-z]?)(\d*)'
+    matches = re.findall(pattern, formula)
+    
+    element_counts = {}
+    for element, count in matches:
+        count = int(count) if count else 1
+        element_counts[element] = element_counts.get(element, 0) + count
+    
+    return element_counts
 
-    # Water molecule: H2O
-    water_mw = (2 * H) + O
-    print(f'Molecular weight of H2O: {water_mw:.3f} g/mol')
+def calculate_molecular_weight(formula):
+    """Calculate molecular weight of a chemical formula."""
+    element_counts = parse_formula(formula)
+    total_weight = 0
+    
+    print(f"\\nCalculating molecular weight for: {formula}")
+    print("-" * 40)
+    
+    for element, count in element_counts.items():
+        if element in atomic_masses:
+            weight = atomic_masses[element] * count
+            total_weight += weight
+            print(f"{element}: {count} × {atomic_masses[element]:.3f} = {weight:.3f} g/mol")
+        else:
+            print(f"Warning: Unknown element '{element}'")
+    
+    print("-" * 40)
+    print(f"Total molecular weight: {total_weight:.3f} g/mol")
+    return total_weight
 
-    # Calculate moles in 18g of water
-    mass = 18.0  # grams
-    moles = mass / water_mw
-    print(f'Moles in {mass}g of water: {moles:.3f} mol')
+# Example calculations
+compounds = ['H2O', 'CO2', 'C6H12O6', 'Ca(OH)2', 'H2SO4']
+for compound in compounds:
+    calculate_molecular_weight(compound)
+    print()`
+        },
+        stoichiometry: {
+            language: 'python',
+            code: `# Stoichiometry Calculator
+# Balance chemical equations and calculate reactant/product quantities
 
-    return water_mw
+def balance_equation(reactants, products):
+    """Simple demonstration of stoichiometry calculations."""
+    print("Stoichiometry Calculator")
+    print("=" * 50)
+    
+    # Example: 2H₂ + O₂ → 2H₂O
+    print("\\nBalanced equation: 2H₂ + O₂ → 2H₂O")
+    
+    # Given data
+    h2_moles = 5.0  # moles of H₂
+    print(f"\\nGiven: {h2_moles} moles of H₂")
+    
+    # Stoichiometric ratios
+    h2_to_o2_ratio = 2/1  # 2 moles H₂ : 1 mole O₂
+    h2_to_h2o_ratio = 2/2  # 2 moles H₂ : 2 moles H₂O
+    
+    # Calculate required O₂
+    o2_required = h2_moles / 2
+    print(f"O₂ required: {o2_required:.2f} moles")
+    
+    # Calculate H₂O produced
+    h2o_produced = h2_moles
+    print(f"H₂O produced: {h2o_produced:.2f} moles")
+    
+    # Convert to grams
+    h2_mass = h2_moles * (2 * atomic_masses['H'])
+    o2_mass = o2_required * (2 * atomic_masses['O'])
+    h2o_mass = h2o_produced * calculate_molecular_weight('H2O')
+    
+    print(f"\\nMass calculations:")
+    print(f"H₂: {h2_mass:.2f} g")
+    print(f"O₂: {o2_mass:.2f} g")
+    print(f"H₂O: {h2o_mass:.2f} g")
+    
+    # Mass conservation check
+    print(f"\\nMass conservation check:")
+    print(f"Reactants: {h2_mass + o2_mass:.2f} g")
+    print(f"Products: {h2o_mass:.2f} g")
+
+# Helper function from molecular weight calculator
+def calculate_molecular_weight(formula):
+    weights = {'H2O': 18.015, 'O2': 31.998, 'H2': 2.016}
+    return weights.get(formula, 0)
 
 # Run the calculation
-calculate_molecular_weight()`,
+balance_equation(None, None)`
+        },
+        ph_calculator: {
+            language: 'python',
+            code: `# pH and Acid-Base Calculator
+# Calculate pH, pOH, and related acid-base properties
+
+import math
+
+def calculate_ph_from_h_concentration(h_concentration):
+    """Calculate pH from H+ concentration."""
+    if h_concentration <= 0:
+        return None
+    ph = -math.log10(h_concentration)
+    return ph
+
+def calculate_poh_from_oh_concentration(oh_concentration):
+    """Calculate pOH from OH- concentration."""
+    if oh_concentration <= 0:
+        return None
+    poh = -math.log10(oh_concentration)
+    return poh
+
+def ph_poh_relationship(ph=None, poh=None):
+    """Calculate pH or pOH using the relationship: pH + pOH = 14"""
+    if ph is not None:
+        poh = 14 - ph
+        return {'pH': ph, 'pOH': poh}
+    elif poh is not None:
+        ph = 14 - poh
+        return {'pH': ph, 'pOH': poh}
+    return None
+
+# Example calculations
+print("pH and Acid-Base Calculator")
+print("=" * 50)
+
+# Example 1: Strong acid
+h_conc = 0.01  # 0.01 M HCl
+ph = calculate_ph_from_h_concentration(h_conc)
+print(f"\\nExample 1: Strong acid (0.01 M HCl)")
+print(f"[H+] = {h_conc} M")
+print(f"pH = {ph:.2f}")
+print(f"Solution is {'acidic' if ph < 7 else 'basic' if ph > 7 else 'neutral'}")
+
+# Example 2: Strong base
+oh_conc = 0.001  # 0.001 M NaOH
+poh = calculate_poh_from_oh_concentration(oh_conc)
+result = ph_poh_relationship(poh=poh)
+print(f"\\nExample 2: Strong base (0.001 M NaOH)")
+print(f"[OH-] = {oh_conc} M")
+print(f"pOH = {poh:.2f}")
+print(f"pH = {result['pH']:.2f}")
+
+# Example 3: Buffer calculation (simplified)
+print(f"\\nExample 3: Buffer System")
+ka = 1.8e-5  # Acetic acid Ka
+pka = -math.log10(ka)
+ratio = 1.5  # [A-]/[HA] ratio
+ph_buffer = pka + math.log10(ratio)
+print(f"Acetic acid buffer: pKa = {pka:.2f}")
+print(f"[A-]/[HA] ratio = {ratio}")
+print(f"Buffer pH = {ph_buffer:.2f}")`
+        },
+        equation_parser: {
+            language: 'javascript',
+            code: `// Chemical Equation Parser
+// Parse and analyze chemical equations
+
+function parseChemicalFormula(formula) {
+    // Regular expression to match element symbols and counts
+    const regex = /([A-Z][a-z]?)(\\d*)/g;
+    const elements = {};
+    let match;
+    
+    while ((match = regex.exec(formula)) !== null) {
+        const element = match[1];
+        const count = match[2] ? parseInt(match[2]) : 1;
+        elements[element] = (elements[element] || 0) + count;
+    }
+    
+    return elements;
+}
+
+function calculateMolecularWeight(elements) {
+    let totalWeight = 0;
+    
+    for (const [element, count] of Object.entries(elements)) {
+        if (atomicMasses[element]) {
+            totalWeight += atomicMasses[element] * count;
+        } else {
+            console.log(\`Warning: Unknown element '\${element}'\`);
+        }
+    }
+    
+    return totalWeight;
+}
+
+// Example usage
+console.log("Chemical Formula Parser");
+console.log("=".repeat(50));
+
+const formulas = ['H2O', 'CO2', 'NH3', 'H2SO4', 'C6H12O6'];
+
+formulas.forEach(formula => {
+    console.log(\`\\nParsing: \${formula}\`);
+    const elements = parseChemicalFormula(formula);
+    console.log("Elements:", elements);
+    
+    const weight = calculateMolecularWeight(elements);
+    console.log(\`Molecular weight: \${weight.toFixed(3)} g/mol\`);
+});
+
+// Parse a chemical equation
+console.log("\\n" + "=".repeat(50));
+console.log("Chemical Equation Parser");
+const equation = "2H2 + O2 -> 2H2O";
+console.log(\`Equation: \${equation}\`);
+
+// Simple equation parser
+const [reactants, products] = equation.split('->').map(side => side.trim());
+console.log(\`Reactants: \${reactants}\`);
+console.log(\`Products: \${products}\`);`
+        },
+        periodic_table: {
+            language: 'sql',
+            code: `-- Periodic Table Queries
+-- Query the elements table to explore chemical properties
+
+-- Show all available tables
+SELECT name FROM sqlite_master WHERE type='table';
+
+-- Basic element queries
+SELECT '=== All Elements ===' AS Query;
+SELECT symbol, name, atomic_mass, category 
+FROM elements 
+ORDER BY atomic_number;
+
+-- Find noble gases
+SELECT '=== Noble Gases ===' AS Query;
+SELECT symbol, name, atomic_mass 
+FROM elements 
+WHERE category = 'Noble Gas'
+ORDER BY atomic_number;
+
+-- Elements by period
+SELECT '=== Elements in Period 2 ===' AS Query;
+SELECT symbol, name, category 
+FROM elements 
+WHERE period = 2
+ORDER BY group_number;
+
+-- Atomic mass analysis
+SELECT '=== Lightest Elements ===' AS Query;
+SELECT symbol, name, atomic_mass 
+FROM elements 
+ORDER BY atomic_mass 
+LIMIT 5;
+
+-- Group analysis
+SELECT '=== Alkali Metals ===' AS Query;
+SELECT symbol, name, atomic_mass 
+FROM elements 
+WHERE category = 'Alkali Metal'
+ORDER BY atomic_number;
+
+-- Compound queries
+SELECT '=== Available Compounds ===' AS Query;
+SELECT * FROM compounds;
+
+-- Find compounds by state
+SELECT '=== Gases at STP ===' AS Query;
+SELECT formula, name, molecular_weight 
+FROM compounds 
+WHERE state_at_stp = 'gas';`
+        },
+        gas_laws: {
+            language: 'python',
+            code: `# Gas Law Calculator
+# Calculate properties using ideal gas law and other gas laws
+
+# Constants are already defined: GAS_CONSTANT = 8.314 J/(mol·K)
+
+def ideal_gas_law(P=None, V=None, n=None, T=None):
+    """
+    Calculate missing variable using PV = nRT
+    P: pressure (Pa), V: volume (L), n: moles, T: temperature (K)
+    """
+    R = 0.08314  # L·bar/(mol·K) for convenient units
+    
+    if P is None:
+        return (n * R * T) / V
+    elif V is None:
+        return (n * R * T) / P
+    elif n is None:
+        return (P * V) / (R * T)
+    elif T is None:
+        return (P * V) / (n * R)
+
+def celsius_to_kelvin(celsius):
+    """Convert Celsius to Kelvin."""
+    return celsius + 273.15
+
+def combined_gas_law(P1, V1, T1, P2=None, V2=None, T2=None):
+    """
+    Apply combined gas law: P1V1/T1 = P2V2/T2
+    """
+    if P2 is None:
+        return (P1 * V1 * T2) / (V2 * T1)
+    elif V2 is None:
+        return (P1 * V1 * T2) / (P2 * T1)
+    elif T2 is None:
+        return (P2 * V2 * T1) / (P1 * V1)
+
+# Example calculations
+print("Gas Law Calculator")
+print("=" * 50)
+
+# Example 1: Ideal gas law
+print("\\nExample 1: Ideal Gas Law")
+P = 1.0  # bar
+V = 22.4  # L
+T_celsius = 0  # °C
+T = celsius_to_kelvin(T_celsius)
+n = ideal_gas_law(P=P, V=V, T=T)
+print(f"At STP: P = {P} bar, V = {V} L, T = {T:.1f} K")
+print(f"Number of moles: {n:.3f} mol")
+
+# Example 2: Temperature change at constant volume
+print("\\nExample 2: Gay-Lussac's Law (constant volume)")
+P1 = 1.0  # bar
+T1 = celsius_to_kelvin(25)  # 25°C
+T2 = celsius_to_kelvin(100)  # 100°C
+P2 = combined_gas_law(P1, 1, T1, V2=1, T2=T2)
+print(f"Initial: P = {P1} bar at {T1-273.15}°C")
+print(f"Final: P = {P2:.2f} bar at {T2-273.15}°C")
+
+# Example 3: Balloon expansion
+print("\\nExample 3: Charles's Law (constant pressure)")
+V1 = 2.0  # L
+T1 = celsius_to_kelvin(20)  # 20°C
+T2 = celsius_to_kelvin(40)  # 40°C
+V2 = combined_gas_law(1, V1, T1, P2=1, T2=T2)
+print(f"Balloon at {T1-273.15}°C: V = {V1} L")
+print(f"Balloon at {T2-273.15}°C: V = {V2:.2f} L")
+print(f"Volume increase: {((V2-V1)/V1)*100:.1f}%")`
+        }
+    };
+
+    // Default code for new sessions
+    const defaultCode = {
+        python: `# Welcome to GeNiUS Code Lab! 🧪🔬
+# Try one of the chemistry templates above or write your own code
+
+# Example: Calculate molar mass of water
+def calculate_water_mass():
+    H = atomic_masses['H']  # Hydrogen atomic mass
+    O = atomic_masses['O']  # Oxygen atomic mass
+    
+    water_mass = 2 * H + O
+    print(f"Molar mass of H₂O = 2×{H} + {O} = {water_mass:.3f} g/mol")
+    
+    # Calculate molecules in one mole
+    molecules = AVOGADRO
+    print(f"One mole contains {molecules:.2e} molecules")
+
+calculate_water_mass()`,
         javascript: `// Welcome to GeNiUS Code Lab! 🧪🔬
-// Calculate molecular weight of water (H2O) in JavaScript
+// JavaScript chemistry calculations
 
-const H = 1.008; // Hydrogen
-const O = 15.999; // Oxygen
+console.log("Chemistry with JavaScript!");
+console.log("Available constants:", { AVOGADRO, GAS_CONSTANT, FARADAY });
 
-const water_mw = (2 * H) + O;
-console.log("Molecular weight of H2O: " + water_mw.toFixed(3) + " g/mol");
-
-const mass = 18.0; // grams
-const moles = mass / water_mw;
-console.log("Moles in 18g of water: " + moles.toFixed(3) + " mol");`,
+// Example: Calculate molar mass
+const waterMass = 2 * atomicMasses['H'] + atomicMasses['O'];
+console.log(\`Molar mass of H₂O = \${waterMass.toFixed(3)} g/mol\`);`,
         sql: `-- Welcome to GeNiUS Code Lab! 🧪🔬
--- Query to select all elements from a periodic table database
+-- Query the pre-loaded chemistry database
 
-SELECT * FROM elements WHERE symbol = 'H2O';`
+-- View available elements
+SELECT * FROM elements 
+WHERE atomic_number <= 10
+ORDER BY atomic_number;`
     };
 
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
+        // Initialize editor
         editor = monaco.editor.create(document.getElementById('editor'), {
             value: defaultCode.python,
             language: 'python',
@@ -365,13 +781,18 @@ SELECT * FROM elements WHERE symbol = 'H2O';`
             wordWrap: 'on'
         });
 
-        // Update line count on editor change
+        // Update line count on change
         editor.onDidChangeModelContent(function() {
             updateLineCount();
         });
 
-        // Initial line count update
+        // Initial line count
         updateLineCount();
+
+        // Load tutorial template if coming from tutorial
+        if (tutorialSlug) {
+            loadTutorialTemplate('starter');
+        }
     });
 
     function updateLineCount() {
@@ -386,14 +807,13 @@ SELECT * FROM elements WHERE symbol = 'H2O';`
         monaco.editor.setModelLanguage(editor.getModel(), language);
 
         // Set default code for language
-        if (defaultCode[language]) {
+        if (!tutorialSlug && defaultCode[language]) {
             editor.setValue(defaultCode[language]);
-        } else {
-            editor.setValue('');
         }
 
         // Update language indicator
-        document.getElementById('language-indicator').textContent = language.charAt(0).toUpperCase() + language.slice(1);
+        document.getElementById('language-indicator').textContent = 
+            language.charAt(0).toUpperCase() + language.slice(1);
 
         // Update active tab
         document.querySelectorAll('.language-tab').forEach(tab => {
@@ -404,19 +824,82 @@ SELECT * FROM elements WHERE symbol = 'H2O';`
         updateLineCount();
     }
 
-    // Dummy loadTemplate (implement as needed!)
     function loadTemplate(templateName) {
-        alert('Template loading coming soon!');
+        const template = codeTemplates[templateName];
+        if (template) {
+            // Switch to the template's language
+            currentLanguage = template.language;
+            monaco.editor.setModelLanguage(editor.getModel(), template.language);
+            
+            // Update language tabs
+            document.querySelectorAll('.language-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase() === template.language) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update language indicator
+            document.getElementById('language-indicator').textContent = 
+                template.language.charAt(0).toUpperCase() + template.language.slice(1);
+            
+            // Set the code
+            editor.setValue(template.code);
+            updateLineCount();
+            
+            // Clear output
+            document.getElementById('output').innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span>Template loaded! Click "Run Code" to execute.</span>
+                </div>
+            `;
+        }
+    }
+
+    function loadTutorialTemplate(templateType) {
+        if (!tutorialSlug) return;
+        
+        fetch(`/tutorials/api/get-template/${tutorialSlug}/${templateType}/`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    editor.setValue(data.code);
+                    // Switch to tutorial's language
+                    currentLanguage = data.language;
+                    monaco.editor.setModelLanguage(editor.getModel(), data.language);
+                    
+                    // Update UI
+                    document.querySelectorAll('.language-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                        if (tab.textContent.toLowerCase() === data.language) {
+                            tab.classList.add('active');
+                        }
+                    });
+                    document.getElementById('language-indicator').textContent = 
+                        data.language.charAt(0).toUpperCase() + data.language.slice(1);
+                    
+                    updateLineCount();
+                } else {
+                    alert(data.error || 'Failed to load template');
+                }
+            })
+            .catch(err => {
+                console.error('Error loading template:', err);
+                alert('Failed to load tutorial template');
+            });
     }
 
     function runCode() {
         const code = editor.getValue();
         const outputElement = document.getElementById('output');
+        
         outputElement.innerHTML = `
             <div style="color: var(--u-green); margin-bottom: 10px;">
                 <i class="fas fa-play-circle"></i> Executing ${currentLanguage} code...
             </div>
         `;
+        
         fetch("{% url 'code_editor:run_code' %}", {
             method: "POST",
             headers: {
@@ -425,20 +908,37 @@ SELECT * FROM elements WHERE symbol = 'H2O';`
             },
             body: JSON.stringify({
                 code: code,
-                language: currentLanguage
+                language: currentLanguage,
+                tutorial_slug: tutorialSlug
             }),
         })
         .then(res => res.json())
         .then(data => {
-            outputElement.innerHTML += `
-                <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+            if (data.success) {
+                outputElement.innerHTML = `
+                    <div style="color: var(--u-green); margin-bottom: 10px;">
+                        <i class="fas fa-check-circle"></i> Code executed successfully
+                    </div>
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
 ${data.output || '(No output)'}
-                </div>
-            `;
+                    </div>
+                `;
+            } else {
+                outputElement.innerHTML = `
+                    <div style="color: var(--er-pink); margin-bottom: 10px;">
+                        <i class="fas fa-exclamation-circle"></i> Error
+                    </div>
+                    <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-line;">
+${data.error || data.output || 'Unknown error occurred'}
+                    </div>
+                `;
+            }
         })
         .catch(err => {
-            outputElement.innerHTML += `
-                <div style="color: red">Error running code: ${err}</div>
+            outputElement.innerHTML = `
+                <div style="color: var(--er-pink)">
+                    <i class="fas fa-exclamation-triangle"></i> Error running code: ${err}
+                </div>
             `;
         });
     }
@@ -464,6 +964,37 @@ ${data.output || '(No output)'}
         a.download = `chemistry_code.${currentLanguage === 'javascript' ? 'js' : currentLanguage}`;
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    function saveTutorialProgress() {
+        const code = editor.getValue();
+        
+        fetch(`/tutorials/api/save-progress/${tutorialSlug}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": window.csrfToken
+            },
+            body: JSON.stringify({
+                code: code
+            }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const output = document.getElementById('output');
+                const currentContent = output.innerHTML;
+                output.innerHTML = `
+                    <div style="color: var(--u-green); margin-bottom: 10px;">
+                        <i class="fas fa-check-circle"></i> Progress saved successfully!
+                    </div>
+                ` + currentContent;
+            }
+        })
+        .catch(err => {
+            console.error('Error saving progress:', err);
+        });
     }
 </script>
 {% endblock %}
