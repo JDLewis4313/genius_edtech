@@ -114,7 +114,7 @@ class ExternalArticle(models.Model):
     
     # Enhanced content fields for longer articles
     full_content = models.TextField(blank=True, null=True, help_text="Complete article content for longer pieces")
-    content_excerpt = models.TextField(blank=True, help_text="Short excerpt separate from summary")
+    content_excerpt = models.TextField(blank=True, null=True, help_text="Short excerpt separate from summary")
     
     featured_image = models.URLField(blank=True)
     published_date = models.DateTimeField(null=True, blank=True)
