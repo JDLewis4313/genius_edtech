@@ -10,8 +10,12 @@ urlpatterns = [
     path('quiz/', include('quiz.urls', namespace='quiz')),
     path('code-editor/', include('code_editor.urls')),
     path('tutorials/', include('apps.tutorials.urls')),
-    path('users/', include('users.urls')),
-    path('accounts/', include('apps.users.urls')),
+    path('users/', include('users.urls', namespace='users')),
+    path('blog/', include('apps.blog.urls', namespace='blog')),
+    path('community/', include('apps.community.urls', namespace='community')),
+    path('', include('apps.analytics.urls')),
+
+
 ]
 
 if settings.DEBUG:

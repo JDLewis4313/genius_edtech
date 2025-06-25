@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'django_extensions',
+    'django_ckeditor_5',
 
     # Project apps
     'apps.core',
@@ -48,7 +49,21 @@ INSTALLED_APPS = [
     'apps.code_editor',
     'apps.users',
     'apps.tutorials',
+    'apps.blog',
+    'apps.interactions',
+    'apps.community',
+    'apps.analytics',
+    
 ]
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'height': 400,
+        'width': 'auto',
+    }
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -126,7 +141,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -185,5 +200,13 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': False,
         },
+    },
+}
+
+# CKEditor 5 Configuration
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
     },
 }

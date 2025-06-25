@@ -1,24 +1,50 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Element
+from apps.analytics.models import Event  # ✅ Analytics logging
 import re
-from quiz.models import Question, Topic, Module
+from quiz.models import Question
 import json
 
 def dashboard(request):
-    """Chemistry dashboard view showing all available tools"""
+    if request.user.is_authenticated:
+        Event.objects.create(
+            user=request.user,
+            event_type='page_view',
+            path=request.path,
+            meta={'tool': 'Chemistry Dashboard'}
+        )
     return render(request, 'chemistry/chemistry_dashboard.html')
 
 def calculator(request):
-    """Chemistry calculator view"""
+    if request.user.is_authenticated:
+        Event.objects.create(
+            user=request.user,
+            event_type='tool_open',
+            path=request.path,
+            meta={'tool': 'Chemistry Calculator'}
+        )
     return render(request, 'chemistry/calculator.html')
 
 def molecular_viewer(request):
-    """Molecular 3D viewer"""
+    if request.user.is_authenticated:
+        Event.objects.create(
+            user=request.user,
+            event_type='tool_open',
+            path=request.path,
+            meta={'tool': 'Molecular 3D Viewer'}
+        )
     return render(request, 'chemistry/molecular_viewer.html')
 
 def periodic_table(request):
-    """Interactive periodic table view"""
+    if request.user.is_authenticated:
+        Event.objects.create(
+            user=request.user,
+            event_type='tool_open',
+            path=request.path,
+            meta={'tool': 'Periodic Table'}
+        )
+
     elements = Element.objects.all()
     elements_json = []
     for element in elements:
@@ -114,7 +140,6 @@ def element_detail(request, atomic_number):
         data = {'success': False, 'error': 'Element not found'}
     return JsonResponse(data)
 
-# --- NEW: AJAX endpoint for molar mass calculation ---
 def calculate_molar_mass(request):
     if request.method == "POST":
         try:
@@ -123,8 +148,6 @@ def calculate_molar_mass(request):
             if not formula:
                 return JsonResponse({"success": False, "error": "No formula provided"})
 
-            # Parse the chemical formula and calculate the molar mass
-            # Example: C6H12O6 → {'C':6, 'H':12, 'O':6}
             pattern = r'([A-Z][a-z]?)(\d*)'
             elements = re.findall(pattern, formula)
             if not elements:
@@ -141,6 +164,14 @@ def calculate_molar_mass(request):
                 mass_contrib = element.atomic_mass * n
                 total_mass += mass_contrib
                 steps.append(f"{symbol}: {element.atomic_mass} × {n} = {mass_contrib:.3f}")
+
+            if request.user.is_authenticated:
+                Event.objects.create(
+                    user=request.user,
+                    event_type='tool_use',
+                    path=request.path,
+                    meta={'tool': 'Molar Mass Calculator', 'formula': formula, 'result': total_mass}
+                )
 
             return JsonResponse({
                 "success": True,

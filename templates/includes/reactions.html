@@ -1,0 +1,28 @@
+{% load utils %}
+
+<h5 class="mt-5">Reactions</h5>
+<div class="d-flex gap-2">
+  <div class="mt-4">
+    <form method="post" class="d-flex gap-2">
+      {% csrf_token %}
+      {% for key, emoji in REACTION_CHOICES %}
+        <button type="submit" name="reaction" value="{{ key }}" class="btn btn-outline-light">
+          {{ emoji }}
+        </button>
+      {% endfor %}
+    </form>
+
+    {% if REACTION_CHOICES and reaction_summary %}
+      <div class="mt-3">
+        <h6 class="text-light">Reaction counts:</h6>
+        <ul class="list-unstyled text-light">
+          {% for key, emoji in REACTION_CHOICES %}
+            {% with reaction_summary|get_item:key as count %}
+              <li>{{ emoji }} — {{ count|default:"0" }} times</li>
+            {% endwith %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+</div>

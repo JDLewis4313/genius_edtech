@@ -5,89 +5,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <!-- Hero Section -->
-    <div class="text-center mb-5">
-        <h1 class="display-3 fw-bold mb-4">Get In Touch</h1>
-        <p class="lead fs-4">
-            Questions about GeNiUS EdTech? Let's connect and discuss how we can revolutionize STEM education together.
-        </p>
-    </div>
-
-    <!-- Contact Cards -->
-    <div class="row g-4 mb-5">
-        <!-- Email -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center">
-                <div class="card-body p-4">
-                    <i class="fas fa-envelope contact-icon" style="font-size: 2.5rem; color: var(--er-pink); margin-bottom: 1rem;"></i>
-                    <h5>Email</h5>
-                    <p class="small">Direct communication</p>
-                    <a href="mailto:jermarcus.lewis@outlook.com" class="btn btn-primary btn-sm">Send Email</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- LinkedIn -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center">
-                <div class="card-body p-4">
-                    <i class="fab fa-linkedin contact-icon" style="font-size: 2.5rem; color: var(--u-green); margin-bottom: 1rem;"></i>
-                    <h5>LinkedIn</h5>
-                    <p class="small">Professional network</p>
-                    <a href="https://www.linkedin.com/in/jermarcus-lewis-6555b0191/" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Connect</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- GitHub -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center">
-                <div class="card-body p-4">
-                    <i class="fab fa-github contact-icon" style="font-size: 2.5rem; color: var(--s-yellow); margin-bottom: 1rem;"></i>
-                    <h5>GitHub</h5>
-                    <p class="small">View projects & code</p>
-                    <a href="https://github.com/JDLewis4313" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Follow</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Form -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body p-5">
-                    <h3 class="mb-4 text-center">Send Us a Message</h3>
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Your Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject" class="form-label">Subject</label>
-                            <input type="text" class="form-control" id="subject" name="subject" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="message" class="form-label">Message</label>
-                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-2"></i> Send Message
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Partnership Info -->
+<!-- Partnership Info -->
     <div class="row justify-content-center mt-5">
         <div class="col-lg-10">
             <div class="card">
@@ -130,7 +48,7 @@
                                     </li>
                                 </ul>
                                 <div class="text-center mt-4">
-                                    <a href="mailto:jermarcus.lewis@outlook.com" class="btn btn-primary">
+                                    <a href="mailto:admin@geniusedtech.org" class="btn btn-primary">
                                         <i class="fas fa-handshake me-2"></i> Become a Partner
                                     </a>
                                 </div>
@@ -141,4 +59,40 @@
             </div>
         </div>
     </div>
-</div>{% endblock %}
+</div>    
+    <!-- Contact Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h3 class="mb-4 text-center">Send Us a Message</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -4,15 +4,16 @@ from django.contrib.auth.models import User
 class Module(models.Model):
     """Learning module containing multiple topics"""
     title = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)  # <-- add this slug!
+    slug = models.SlugField(unique=True)
     description = models.TextField()
     order = models.IntegerField(default=1)
-    
-    def __str__(self):
-        return self.title
-    
+
     class Meta:
         ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
 
 class Topic(models.Model):
     """Topic within a module containing questions"""
@@ -20,12 +21,13 @@ class Topic(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     order = models.IntegerField(default=1)
-    
-    def __str__(self):
-        return self.title
-    
+
     class Meta:
         ordering = ['module', 'order']
+
+    def __str__(self):
+        return self.title
+
 
 class Question(models.Model):
     """Quiz question"""
@@ -34,30 +36,32 @@ class Question(models.Model):
         ('medium', 'Medium'),
         ('hard', 'Hard'),
     ]
-    
+
     TYPE_CHOICES = [
         ('multiple_choice', 'Multiple Choice'),
         ('true_false', 'True/False'),
         ('short_answer', 'Short Answer'),
     ]
-    
+
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
     question_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='multiple_choice')
     explanation = models.TextField(blank=True)
-    
+
     def __str__(self):
         return self.text[:50]
+
 
 class Choice(models.Model):
     """Multiple choice option for a question"""
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return self.text
+
 
 class UserProgress(models.Model):
     """Track user progress through modules and topics"""
@@ -67,6 +71,22 @@ class UserProgress(models.Model):
     completed = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
     last_activity = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         unique_together = ['user', 'topic']
+
+
+class QuizAttempt(models.Model):
+    """Track each quiz attempt by a user"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='quiz_attempts')
+    score = models.FloatField()
+    correct_answers = models.PositiveIntegerField()
+    total_questions = models.PositiveIntegerField()
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-completed_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.topic.title} ({self.score:.0f}%)"

@@ -1,0 +1,8 @@
+# Include production requirements
+-r requirements.txt
+
+# Development tools
+cookiecutter==2.6.0
+rich==14.0.0
+markdown-it-py==3.0.0
+Pygments==2.19.2

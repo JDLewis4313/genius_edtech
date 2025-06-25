@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated and user.is_staff %}
+  <p><a class="btn btn-success" href="{% url 'blog:create_post' %}">+ New Blog Post</a></p>
+{% endif %}
+
+<div class="container mt-5">
+  <h1 class="mb-4 text-gradient">Latest Insights</h1>
+  {% for post in posts %}
+    <div class="mb-4 p-4 bg-dark text-white rounded shadow">
+      <h3>
+        {% if post.is_external %}
+          <a href="{% url 'blog:external_detail' post.id %}" class="text-decoration-none text-light">
+            {{ post.title }} <span class="badge bg-info">External</span>
+          </a>
+        {% else %}
+          <a href="{% url 'blog:detail' post.slug %}" class="text-decoration-none text-light">
+            {{ post.title }}
+          </a>
+        {% endif %}
+      </h3>
+      <p class="text-muted small">
+        {{ post.created_at_common|date:"F d, Y" }}
+      </p>
+      <p>{{ post.excerpt_common }}</p>
+      {% if not post.is_external %}
+        <a href="{% url 'blog:detail' post.slug %}" class="btn btn-outline-primary btn-sm mt-2">Read more</a>
+      {% else %}
+        <a href="{% url 'blog:external_detail' post.id %}" class="btn btn-outline-primary btn-sm mt-2">Read more</a>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p class="text-muted">No blog posts found.</p>
+  {% endfor %}
+</div>
+{% endblock %}
