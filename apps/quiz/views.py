@@ -183,16 +183,23 @@ def get_quiz_questions(request, topic_id):
         'questions': questions_data
     })
 
-@login_required
 def take_quiz(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
-    questions = Question.objects.filter(topic=topic).prefetch_related('choices')
-    return render(request, 'quiz/take_quiz.html', {
-        'topic': topic,
-        'questions': questions
+    questions = topic.questions.prefetch_related("choices").all()
+
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            # Save progress or score
+            ...
+        else:
+            # Optionally show a message or skip saving
+            pass
+
+    return render(request, "quiz/take_quiz.html", {
+        "topic": topic,
+        "questions": questions
     })
 
-@login_required
 def submit_score(request):
     if request.method == 'POST':
         topic_id = request.POST.get('topic_id')

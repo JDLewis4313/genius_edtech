@@ -2,7 +2,7 @@
 Django==5.2.3
 djangorestframework==3.16.0
 
-# Database & Configuration  
+# Database
 dj-database-url==3.0.0
 psycopg2-binary==2.9.10
 python-decouple==3.8
@@ -17,10 +17,7 @@ beautifulsoup4==4.12.3
 lxml==5.2.2
 requests==2.31.0
 
-# UI & Frontend
-django-tailwind==4.0.1
-
-# Production & Deployment
+# Production
 gunicorn==23.0.0
 whitenoise==6.9.0
 
@@ -29,7 +26,8 @@ django-cors-headers==4.7.0
 
 # Utilities
 django-extensions==4.1
-sqlparse==0.5.3
-asgiref==3.8.1
-packaging==25.0
-typing_extensions==4.14.0
+
+# AI & Math
+sympy>=1.12
+matplotlib>=3.8
+textstat>=0.7.3

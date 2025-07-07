@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 import io, base64
 from sympy import symbols, sympify, lambdify
@@ -19,9 +21,12 @@ class MathVisualizer:
 
             buf = io.BytesIO()
             plt.savefig(buf, format='png')
-            plt.close(fig)
             buf.seek(0)
-            image_base64 = base64.b64encode(buf.read()).decode('utf-8')
-            return f"data:image/png;base64,{image_base64}"
+            
+            # Convert to base64 for web display
+            plot_data = base64.b64encode(buf.read()).decode()
+            plt.close()
+            
+            return plot_data
         except Exception as e:
-            return f"Error generating plot: {str(e)}"
+            return f"Error plotting: {str(e)}"

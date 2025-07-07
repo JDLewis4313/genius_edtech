@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'apps.blog',
     'apps.interactions',
     'apps.community',
+    'apps.mentari',
     'apps.analytics',
     
 ]

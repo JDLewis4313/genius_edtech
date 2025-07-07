@@ -7,13 +7,11 @@ from collections import Counter
 from django.urls import reverse
 from django.contrib import messages
 
-# Import models and forms.
 from .models import BlogPost, Post, ExternalArticle
 from .forms import BlogPostForm, ShareToCommonsForm
-from apps.community.models import Board, Thread, Post as CommunityPost  # Community models
-from apps.interactions.models import Comment, Reaction  # Comments and Reactions
+from apps.community.models import Board, Thread, Post as CommunityPost
+from apps.interactions.models import Comment, Reaction
 
-# Reaction choices for internal posts.
 REACTION_CHOICES = [
     ("like", "👍"),
     ("fire", "🔥"),
@@ -22,87 +20,49 @@ REACTION_CHOICES = [
 ]
 
 def blog_index(request):
-    """
-    Display a combined feed of internal blog posts, quick posts, and external articles.
-    """
-    # Query internal posts.
     internal_posts = list(BlogPost.objects.filter(is_published=True).order_by('-created_at'))
-    # Query quick posts
     quick_posts = list(Post.objects.filter(published=True).order_by('-created_at'))
-    # Query external articles.
     external_articles = list(ExternalArticle.objects.order_by('-published_date', '-fetched_date'))
 
-    # Annotate internal posts with common fields and interaction counts
     for post in internal_posts:
         post.is_external = False
         post.is_quick_post = False
-        post.created_at_common = post.created_at
-        post.excerpt_common = post.excerpt
+        post.created_at_common = post.created_at or post.updated_at
+        post.excerpt_common = getattr(post, 'excerpt', '') or ''
         post.feed_type = 'editorial'
-        
-        # Add interaction counts
-        post.comment_count = Comment.objects.filter(
-            content_type=ContentType.objects.get_for_model(post),
-            object_id=post.id
-        ).count()
-        
-        reactions = Reaction.objects.filter(
-            content_type=ContentType.objects.get_for_model(post),
-            object_id=post.id
-        )
+        post.comment_count = Comment.objects.filter(content_type=ContentType.objects.get_for_model(post), object_id=post.id).count()
+        reactions = Reaction.objects.filter(content_type=ContentType.objects.get_for_model(post), object_id=post.id)
         post.reaction_count = Counter(r.reaction for r in reactions)
         post.total_reactions = sum(post.reaction_count.values())
 
-    # Annotate quick posts
     for post in quick_posts:
         post.is_external = False
         post.is_quick_post = True
         post.created_at_common = post.created_at
         post.excerpt_common = post.excerpt or post.content[:300]
         post.feed_type = 'quick'
-        
-        # Add interaction counts
-        post.comment_count = Comment.objects.filter(
-            content_type=ContentType.objects.get_for_model(post),
-            object_id=post.id
-        ).count()
-        
-        reactions = Reaction.objects.filter(
-            content_type=ContentType.objects.get_for_model(post),
-            object_id=post.id
-        )
+        post.comment_count = Comment.objects.filter(content_type=ContentType.objects.get_for_model(post), object_id=post.id).count()
+        reactions = Reaction.objects.filter(content_type=ContentType.objects.get_for_model(post), object_id=post.id)
         post.reaction_count = Counter(r.reaction for r in reactions)
         post.total_reactions = sum(post.reaction_count.values())
 
-    # Annotate external articles with interaction counts
     for article in external_articles:
         article.is_external = True
         article.is_quick_post = False
-        article.created_at_common = article.published_date if article.published_date else article.fetched_date
-        article.excerpt_common = article.summary
+        article.created_at_common = article.published_date or article.fetched_date
+        article.excerpt_common = article.summary or ''
         article.feed_type = 'external'
-        
-        # Add interaction counts
-        article.comment_count = Comment.objects.filter(
-            content_type=ContentType.objects.get_for_model(article),
-            object_id=article.id
-        ).count()
-        
-        reactions = Reaction.objects.filter(
-            content_type=ContentType.objects.get_for_model(article),
-            object_id=article.id
-        )
+        article.comment_count = Comment.objects.filter(content_type=ContentType.objects.get_for_model(article), object_id=article.id).count()
+        reactions = Reaction.objects.filter(content_type=ContentType.objects.get_for_model(article), object_id=article.id)
         article.reaction_count = Counter(r.reaction for r in reactions)
         article.total_reactions = sum(article.reaction_count.values())
 
-    # Merge and sort all lists by the common creation date.
     combined_feed = sorted(
         internal_posts + quick_posts + external_articles,
-        key=lambda x: x.created_at_common,
+        key=lambda x: x.created_at_common or x.updated_at,
         reverse=True
     )
 
-    # Get announcements for special display
     announcements = Post.objects.filter(published=True, is_announcement=True)[:3]
 
     return render(request, 'blog/index.html', {
@@ -110,6 +70,7 @@ def blog_index(request):
         'announcements': announcements,
         'REACTION_CHOICES': REACTION_CHOICES,
     })
+
 
 def blog_detail(request, slug):
     """

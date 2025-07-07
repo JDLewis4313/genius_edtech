@@ -1,0 +1,1013 @@
+<!-- templates/mentari/chat.html -->
+{% extends "base.html" %}
+{% block title %}Mentari AI Assistant - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="text-center text-gradient mb-4">
+    <i class="fas fa-brain"></i> Mentari AI Learning Assistant
+  </h2>
+  <p class="text-center text-muted mb-4">
+    Your personalized AI tutor that adapts to your learning style
+  </p>
+
+  <div id="chat-container" class="border rounded p-3 mb-4" 
+       style="height: 450px; overflow-y: auto; background: var(--bg-card);">
+    <div class="alert alert-info">
+      <strong>🌟 Welcome to Mentari!</strong> I'm your personal learning AI.
+      <br><br>
+      I can help you with:
+      <ul class="mb-0 mt-2">
+        <li>📐 Math problems (arithmetic, algebra, calculus)</li>
+        <li>🧪 Chemistry questions and calculations</li>
+        <li>📝 Interactive quizzes that adapt to your level</li>
+        <li>💻 Code examples and explanations</li>
+        <li>📚 Finding tutorials</li>
+        <li>💬 Community discussions</li>
+        <li>📊 Tracking your learning progress</li>
+      </ul>
+      <br>
+      <strong>Try saying "Hello" to get personalized suggestions!</strong>
+    </div>
+  </div>
+
+  <div class="input-group mb-3">
+    <input type="text" id="user-input" class="form-control" 
+           placeholder="Ask me anything or just say hello..." 
+           onkeypress="handleKeyPress(event)">
+    <button class="btn btn-primary" onclick="sendMessage()">
+      <i class="fas fa-paper-plane"></i> Send
+    </button>
+  </div>
+
+  <div class="d-flex gap-2 mb-3 flex-wrap">
+    <button class="btn btn-sm btn-outline-secondary" onclick="askExample('Hello')">
+      Say Hello
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="askExample('How am I doing?')">
+      My Progress
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="askExample('quiz on atoms')">
+      Start Quiz
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="askExample('molar mass of H2O')">
+      Chemistry
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="askExample('solve x^2 - 4 = 0')">
+      Math
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="askExample('show recent threads')">
+      Community
+    </button>
+  </div>
+
+  <div id="stats" class="mt-3 small text-muted">
+    <i class="fas fa-chart-line"></i> <span id="conversation-stats">Ready to assist...</span>
+  </div>
+
+<!-- Floating Action Button -->
+<div class="fab-container d-none d-md-block">
+    <button class="fab" onclick="showQuickActions()" title="Quick Actions">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function displayConversationSummary(summary) {
+    if (!summary) return;
+    
+    const existing = document.getElementById('conversation-summary');
+    if (existing) existing.remove();
+    
+    const summaryDiv = document.createElement('div');
+    summaryDiv.id = 'conversation-summary';
+    summaryDiv.className = 'alert alert-info alert-sm mb-3';
+    
+    let summaryHtml = '<div class="d-flex justify-content-between align-items-center">';
+    summaryHtml += '<div><small><i class="fas fa-history"></i> ';
+    
+    if (summary.recent_topics && summary.recent_topics.length > 0) {
+        summaryHtml += `Recent: ${summary.recent_topics.slice(0, 2).join(', ')}`;
+    } else {
+        summaryHtml += 'New conversation';
+    }
+    
+    summaryHtml += `</small></div>`;
+    summaryHtml += `<small class="text-muted">${summary.total_interactions || 0} interactions</small>`;
+    summaryHtml += '</div>';
+    
+    summaryDiv.innerHTML = summaryHtml;
+    
+    const container = document.getElementById("chat-container");
+    container.insertBefore(summaryDiv, container.firstChild);
+}
+
+// Enhanced sendMessage function with better error handling
+function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage("user", message);
+    input.value = "";
+
+    const typingId = showTyping();
+
+    fetch("/ai/chat/api/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ message: message })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        removeTyping(typingId);
+
+        // Handle different response formats
+        let responseText = "I'm not sure how to respond to that.";
+        if (typeof data === "string") {
+            responseText = data;
+        } else if (data.text) {
+            responseText = data.text;
+        } else if (data.response) {
+            responseText = data.response;
+        }
+
+        addMessage("assistant", responseText);
+
+        // Handle card display
+        if (data.card) {
+            displayCard(data.card);
+        }
+
+        // Handle conversation summary
+        if (data.conversation_summary) {
+            displayConversationSummary(data.conversation_summary);
+        }
+
+        // Handle quiz status indicators
+        if (data.quiz_status) {
+            displayQuizStatus(data.quiz_status);
+        }
+
+        // Handle redirects
+        if (data.redirect_url) {
+            setTimeout(() => window.location.href = data.redirect_url, 500);
+        }
+
+        // Handle stats
+        if (data.conversation_stats) {
+            updateStats(data.conversation_stats);
+        }
+    })
+    .catch(error => {
+        removeTyping(typingId);
+        console.error("Mentari error:", error);
+        
+        let errorMessage = "I'm having trouble connecting. ";
+        if (!navigator.onLine) {
+            errorMessage += "Please check your internet connection.";
+        } else {
+            errorMessage += "Please try again in a moment.";
+        }
+        
+        addMessage("assistant", `
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
+                <br><small class="text-muted mt-2">
+                    <button class="btn btn-sm btn-outline-warning mt-2" onclick="location.reload()">
+                        🔄 Refresh Page
+                    </button>
+                </small>
+            </div>
+        `);
+    });
+}
+
+function addMessage(sender, text) {
+    const div = document.createElement("div");
+    div.className = `mb-3 ${sender === 'user' ? 'text-end' : ''}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = `d-inline-block message-bubble p-3 ${
+        sender === 'user' ? 'bg-primary text-white' : 'bg-light'
+    }`;
+    bubble.style.maxWidth = "85%";
+    bubble.style.animation = "fadeInUp 0.4s ease";
+
+    bubble.innerHTML = formatMessage(text);
+    
+    // Add timestamp
+    const timestamp = document.createElement("small");
+    timestamp.className = `d-block mt-1 ${sender === 'user' ? 'text-white-50' : 'text-muted'}`;
+    timestamp.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    bubble.appendChild(timestamp);
+    
+    div.appendChild(bubble);
+
+    const container = document.getElementById("chat-container");
+    container.appendChild(div);
+    scrollToBottom();
+}
+
+function formatMessage(text) {
+    return text;
+}
+
+function displayCard(card) {
+    const container = document.getElementById("chat-container");
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "card mt-3 mb-3 shadow-sm";
+
+    try {
+        switch(card.type) {
+            case "quiz_question":
+                cardDiv.className = "card mt-3 mb-3 card-enhanced";
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">📝 Quiz Question</h5>
+                            <span class="badge bg-primary">${card.question_num} of ${card.total}</span>
+                        </div>
+                        
+                        <div class="quiz-progress mb-4">
+                            <div class="progress-container">
+                                <svg class="progress-ring" width="100" height="100">
+                                    <circle class="progress-ring-circle" 
+                                            cx="50" cy="50" r="40"
+                                            stroke="var(--u-green)" 
+                                            stroke-width="8" 
+                                            fill="transparent"
+                                            style="stroke-dashoffset: ${251.2 - (card.question_num / card.total) * 251.2}"/>
+                                </svg>
+                                <div class="progress-text">${Math.round((card.question_num / card.total) * 100)}%</div>
+                            </div>
+                        </div>
+                        
+                        <p class="card-text mb-4">${card.choices && card.choices[0] ? card.choices[0].text.split(': ')[0] : card.question || 'Question'}</p>
+                        
+                        <div class="d-grid gap-2">
+                            ${card.choices ? card.choices.map(choice =>
+                                `<button class="btn btn-quiz-option" 
+                                         onclick="submitQuizAnswer('${choice.letter}')">
+                                    <strong>${choice.letter}.</strong> ${choice.text}
+                                </button>`
+                            ).join('') : '<p>No choices available</p>'}
+                        </div>
+                        
+                        <div class="mt-3 text-muted text-center">
+                            <small><i class="fas fa-mouse"></i> Click an option or type A, B, C, or D</small>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "quiz_complete":
+                cardDiv.innerHTML = `
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🎉 Quiz Complete!</h5>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Topic</p>
+                                <h6>${card.topic || 'Quiz'}</h6>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Score</p>
+                                <h6>${card.score || 0}/${card.total || 0} (${Math.round(card.percentage || 0)}%)</h6>
+                            </div>
+                        </div>
+                        
+                        ${card.recommendations ? `
+                            <div class="alert alert-info text-start mb-3">
+                                <h6><i class="fas fa-lightbulb"></i> Recommendations</h6>
+                                <ul class="mb-0">
+                                    ${card.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="d-grid gap-2">
+                            ${card.next_actions ? card.next_actions.map(action => 
+                                `<button class="btn ${action.text.includes('Another') ? 'btn-primary' : 'btn-outline-primary'}" 
+                                         onclick="sendQuickMessage('${action.action}')">
+                                    ${action.text}
+                                </button>`
+                            ).join('') : `
+                                <button class="btn btn-primary" onclick="sendQuickMessage('start a new quiz')">
+                                    🔄 Try Another Quiz
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="sendQuickMessage('How am I doing?')">
+                                    📊 View Progress
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "quiz_paused":
+                cardDiv.innerHTML = `
+                    <div class="card-body text-center">
+                        <h5 class="card-title">⏸️ Quiz Paused</h5>
+                        <p class="text-muted mb-3">Your progress has been saved. You can continue exploring other features.</p>
+                        
+                        <div class="d-grid gap-2">
+                            ${card.actions ? card.actions.map(action => 
+                                action.url ? 
+                                `<a href="${action.url}" class="btn btn-outline-primary">${action.text}</a>` :
+                                `<button class="btn ${action.text.includes('Resume') ? 'btn-success' : 'btn-outline-primary'}" 
+                                         onclick="sendQuickMessage('${action.action}')">
+                                    ${action.text}
+                                </button>`
+                            ).join('') : `
+                                <button class="btn btn-success" onclick="sendQuickMessage('resume quiz')">
+                                    ▶️ Resume Quiz
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="sendQuickMessage('end quiz')">
+                                    🏁 End Quiz
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "topic_list":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">📚 Available Quiz Topics</h5>
+                        <div class="list-group list-group-flush">
+                            ${card.topics ? card.topics.map(t => 
+                                `<a href="#" class="list-group-item list-group-item-action py-2" 
+                                    onclick="sendQuickMessage('quiz on ${t.title || t}'); return false;">
+                                    <i class="fas fa-chevron-right me-2"></i>${t.title || t}
+                                </a>`
+                            ).join('') : '<p>No topics available</p>'}
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "help":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">💡 Quick Actions</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            ${card.suggestions ? card.suggestions.map(s => 
+                                `<button class="btn btn-sm btn-outline-primary" 
+                                    onclick="sendQuickMessage('${s}')">
+                                    ${s}
+                                </button>`
+                            ).join('') : ''}
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "chemistry_result":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">🧪 Chemistry Result</h5>
+                        <p class="card-text">Formula: <strong>${card.formula || 'Unknown'}</strong></p>
+                        ${card.details ? `<p class="card-text">${card.details}</p>` : ''}
+                    </div>
+                `;
+                break;
+
+            case "code_result":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">💻 Code Execution</h5>
+                        <p class="card-text"><small class="text-muted">Language: ${card.language || 'Unknown'}</small></p>
+                        <pre class="bg-dark text-white p-2 rounded"><code>${card.code || ''}</code></pre>
+                        <p class="card-text mt-2"><strong>Output:</strong></p>
+                        <pre class="bg-light p-2 rounded"><code>${card.output || 'No output'}</code></pre>
+                    </div>
+                `;
+                break;
+
+            case "thread_list":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">💬 Community Threads</h5>
+                        ${card.threads && card.threads.length > 0 ? `
+                            <div class="list-group list-group-flush">
+                                ${card.threads.map(thread => `
+                                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">${thread.title || 'Untitled Thread'}</div>
+                                            <small class="text-muted">
+                                                by ${thread.author || 'Unknown'} • 
+                                                ${thread.replies || 0} replies • 
+                                                ${thread.last_activity || 'Recently'}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">${thread.replies || 0}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-3">
+                                <a href="/community/" class="btn btn-sm btn-primary">
+                                    Visit The Commons
+                                </a>
+                            </div>
+                        ` : `
+                            <p class="text-muted">No recent threads found.</p>
+                            <a href="/community/" class="btn btn-sm btn-outline-primary">
+                                Visit The Commons
+                            </a>
+                        `}
+                    </div>
+                `;
+                break;
+
+            case "community_help":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">💬 Community Actions</h5>
+                        <div class="d-grid gap-2">
+                            ${card.actions ? card.actions.map(action => 
+                                action.url ? 
+                                `<a href="${action.url}" class="btn btn-outline-primary">${action.text}</a>` :
+                                `<button class="btn btn-outline-primary" onclick="sendQuickMessage('${action.action}')">${action.text}</button>`
+                            ).join('') : ''}
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "progress":
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">📊 Learning Progress</h5>
+                        ${card.stats && card.stats.length > 0 ? `
+                            <ul class="list-unstyled">
+                                ${card.stats.map(stat => `<li>${stat}</li>`).join('')}
+                            </ul>
+                        ` : '<p class="text-muted">No progress data available.</p>'}
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-primary" onclick="sendQuickMessage('start a new quiz')">
+                                📝 Take a Quiz
+                            </button>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            default:
+                // Generic card for unknown types
+                cardDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">📄 Information</h5>
+                        <p class="card-text">Card type: ${card.type}</p>
+                        <pre class="bg-light p-2 rounded small">${JSON.stringify(card, null, 2)}</pre>
+                    </div>
+                `;
+                break;
+        }
+
+        container.appendChild(cardDiv);
+        scrollToBottom();
+        
+    } catch (error) {
+        console.error("Error displaying card:", error);
+        cardDiv.innerHTML = `
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Error displaying card content
+                </div>
+            </div>
+        `;
+        container.appendChild(cardDiv);
+    }
+}
+
+function displayQuizStatus(status) {
+    // Remove existing quiz status indicator
+    const existing = document.getElementById('quiz-status-indicator');
+    if (existing) existing.remove();
+    
+    if (status === 'active' || status === 'paused') {
+        const indicator = document.createElement('div');
+        indicator.id = 'quiz-status-indicator';
+        indicator.className = `alert ${status === 'active' ? 'alert-primary' : 'alert-warning'} alert-sm mb-2`;
+        
+        const iconClass = status === 'active' ? 'fa-play' : 'fa-pause';
+        const statusText = status === 'active' ? 'Quiz Active' : 'Quiz Paused';
+        const actionText = status === 'active' ? 'pause quiz' : 'resume quiz';
+        const actionIcon = status === 'active' ? 'fa-pause' : 'fa-play';
+        
+        indicator.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <small><i class="fas ${iconClass}"></i> ${statusText} - You can still use other features!</small>
+                <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickMessage('${actionText}')">
+                    <i class="fas ${actionIcon}"></i>
+                </button>
+            </div>
+        `;
+        
+        const container = document.getElementById("chat-container");
+        container.insertBefore(indicator, container.firstChild);
+    }
+}
+
+function sendQuickMessage(message) {
+    document.getElementById("user-input").value = message;
+    sendMessage();
+}
+
+function submitQuizAnswer(answer) {
+    document.getElementById("user-input").value = `answer: ${answer}`;
+    sendMessage();
+}
+
+function showTyping() {
+    const id = 'typing-' + Date.now();
+    const div = document.createElement("div");
+    div.id = id;
+    div.className = "mb-3";
+    div.innerHTML = `
+        <div class="d-inline-block message-bubble bg-light p-3">
+            <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <small class="text-muted d-block mt-2">Mentari is thinking...</small>
+        </div>
+    `;
+    document.getElementById("chat-container").appendChild(div);
+    scrollToBottom();
+    return id;
+}
+
+function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+function updateStats(stats) {
+    if (stats) {
+        let statsText = [];
+        
+        if (stats.total_interactions) {
+            statsText.push(`Interactions: ${stats.total_interactions}`);
+        }
+        
+        if (stats.topics_explored && stats.topics_explored.length > 0) {
+            statsText.push(`Topics: ${stats.topics_explored.length}`);
+        }
+        
+        if (stats.current_session) {
+            statsText.push(`This session: ${stats.current_session}`);
+        }
+        
+        if (stats.growth_indicators) {
+            statsText.push(stats.growth_indicators);
+        }
+        
+        document.getElementById("conversation-stats").textContent = 
+            statsText.join(' | ') || 'Active';
+    }
+}
+
+function handleKeyPress(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+function askExample(question) {
+    document.getElementById("user-input").value = question;
+    sendMessage();
+}
+
+function scrollToBottom() {
+    const container = document.getElementById("chat-container");
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+}
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("user-input").focus();
+    
+    // Add keyboard shortcut hint
+    const input = document.getElementById("user-input");
+    input.setAttribute("title", "Press Enter to send, Shift+Enter for new line");
+});
+
+function restartQuiz() {
+    console.log("🔄 Restarting quiz...");
+    
+    // Clear any quiz state visually
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        if (card.innerHTML.includes('Quiz Complete') || card.innerHTML.includes('Quiz Question')) {
+            card.remove();
+        }
+    });
+    
+    // Send a clear request for a new quiz
+    sendQuickMessage('I want to take a quiz');
+}
+
+// Connection status indicator
+function updateConnectionStatus() {
+    const indicator = document.getElementById('connection-status');
+    if (!indicator) {
+        const statusDiv = document.createElement('div');
+        statusDiv.id = 'connection-status';
+        statusDiv.className = 'alert alert-success alert-sm p-2 m-0';
+        statusDiv.innerHTML = '<small><i class="fas fa-wifi"></i> Connected</small>';
+        document.querySelector('.container').insertBefore(statusDiv, document.querySelector('h2'));
+    }
+    
+    if (navigator.onLine) {
+        indicator.className = 'alert alert-success alert-sm p-2 m-0';
+        indicator.innerHTML = '<small><i class="fas fa-wifi"></i> Connected</small>';
+    } else {
+        indicator.className = 'alert alert-danger alert-sm p-2 m-0';
+        indicator.innerHTML = '<small><i class="fas fa-wifi-slash"></i> Offline</small>';
+    }
+}
+
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+window.addEventListener('load', updateConnectionStatus);
+
+function showQuickActions() {
+    const actions = [
+        {text: "🎯 Start Quiz", action: "start a new quiz"},
+        {text: "⏸️ Pause Quiz", action: "pause quiz", condition: "quiz_active"},
+        {text: "▶️ Resume Quiz", action: "resume quiz", condition: "quiz_paused"},
+        {text: "🏁 End Quiz", action: "end quiz", condition: "quiz_any"},
+        {text: "🧮 Solve Math", action: "solve x^2 - 4 = 0"},
+        {text: "🧪 Chemistry Help", action: "molar mass of H2O"},
+        {text: "📊 My Progress", action: "How am I doing?"},
+        {text: "💬 Community", action: "show recent threads"}
+    ];
+    
+    let actionHtml = '<div class="alert alert-primary"><h6>Quick Actions</h6><div class="d-grid gap-2">';
+    actions.forEach(action => {
+        // Show all actions for now - in a real implementation, you'd check quiz status
+        if (!action.condition || action.condition === 'always') {
+            actionHtml += `<button class="btn btn-sm btn-outline-primary" onclick="sendQuickMessage('${action.action}')">${action.text}</button>`;
+        }
+    });
+    actionHtml += '</div></div>';
+    
+    addMessage("assistant", actionHtml);
+}
+
+</script>
+
+<style>
+/* Typing indicator animation */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: #999;
+    border-radius: 50%;
+    display: inline-block;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+}
+
+/* Custom card styles */
+.card {
+    border: 1px solid rgba(0, 184, 148, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.15);
+}
+
+/* Code block styling */
+pre {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+pre code {
+    display: block;
+    overflow-x: auto;
+}
+
+/* Message bubble improvements */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.bg-primary {
+    background: var(--primary-gradient) !important;
+}
+
+/* List styling in messages */
+.bg-light ul, .bg-primary ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    #chat-container {
+        height: 350px !important;
+    }
+    
+    .d-flex.gap-2 button {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Alert styling within chat */
+#chat-container .alert {
+    margin-bottom: 0.5rem;
+}
+
+#chat-container .alert:last-child {
+    margin-bottom: 0;
+}
+
+/* Enhanced Loading States */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 15px;
+}
+
+.typing-indicator span {
+    height: 10px;
+    width: 10px;
+    background: linear-gradient(45deg, var(--u-green), var(--s-yellow));
+    border-radius: 50%;
+    display: inline-block;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-8px); }
+}
+
+.message-bubble {
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.message-bubble:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, var(--u-green), #00d4aa);
+    border: none;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+}
+
+.card {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile-First Responsive Design */
+@media (max-width: 768px) {
+    .container { padding: 10px; }
+    
+    #chat-container {
+        height: 400px !important;
+        border-radius: 10px;
+    }
+    
+    .message-bubble {
+        max-width: 95% !important;
+        font-size: 14px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px; /* Better touch targets */
+    }
+    
+    .input-group input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 25px 0 0 25px;
+    }
+    
+    .input-group button {
+        border-radius: 0 25px 25px 0;
+    }
+    
+    .d-flex.gap-2 {
+        flex-wrap: wrap;
+        gap: 8px !important;
+    }
+    
+    .d-flex.gap-2 button {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 120px;
+        font-size: 12px;
+    }
+    
+    .card {
+        margin: 8px 0;
+        border-radius: 12px;
+    }
+    
+    .list-group-item {
+        padding: 15px;
+        font-size: 14px;
+    }
+}
+
+/* Improved Touch Interactions */
+.btn, .list-group-item-action {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Better Focus States for Accessibility */
+.btn:focus, input:focus {
+    outline: 2px solid var(--u-green);
+    outline-offset: 2px;
+}
+
+/* Progress Indicators */
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: 251.2;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.quiz-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.progress-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Enhanced Buttons */
+.btn-quiz-option {
+    padding: 15px 20px;
+    margin: 5px 0;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    background: white;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.btn-quiz-option:hover {
+    border-color: var(--u-green);
+    background: rgba(0, 184, 148, 0.05);
+    transform: translateX(5px);
+}
+
+.btn-quiz-option:active {
+    transform: translateX(3px) scale(0.98);
+}
+
+/* Improved Cards */
+.card-enhanced {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+.card-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(45deg, var(--u-green), var(--s-yellow));
+}
+
+/* Floating Action Button for Quick Actions */
+.fab-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--u-green), #00d4aa);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.4);
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.6);
+}
+
+@media (max-width: 768px) {
+    .fab-container { bottom: 80px; }
+}
+
+</style>
+{% endblock %}

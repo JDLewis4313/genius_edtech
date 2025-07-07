@@ -1,6 +1,6 @@
 import csv
 from django.core.management.base import BaseCommand
-from quiz.models import Module, Topic, Question, Choice
+from apps.quiz.models import Module, Topic, Question, Choice
 
 class Command(BaseCommand):
     help = 'Import quiz data from CSV file'

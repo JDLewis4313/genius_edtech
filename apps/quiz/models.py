@@ -24,6 +24,7 @@ class Topic(models.Model):
 
     class Meta:
         ordering = ['module', 'order']
+        app_label = "quiz"
 
     def __str__(self):
         return self.title
@@ -49,6 +50,9 @@ class Question(models.Model):
     question_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='multiple_choice')
     explanation = models.TextField(blank=True)
 
+    class Meta:
+        app_label = "quiz"
+
     def __str__(self):
         return self.text[:50]
 
@@ -58,6 +62,9 @@ class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = "quiz"
 
     def __str__(self):
         return self.text
@@ -74,6 +81,7 @@ class UserProgress(models.Model):
 
     class Meta:
         unique_together = ['user', 'topic']
+        app_label = "quiz"
 
 
 class QuizAttempt(models.Model):
@@ -87,6 +95,7 @@ class QuizAttempt(models.Model):
 
     class Meta:
         ordering = ['-completed_at']
+        app_label = "quiz"
 
     def __str__(self):
         return f"{self.user.username} - {self.topic.title} ({self.score:.0f}%)"

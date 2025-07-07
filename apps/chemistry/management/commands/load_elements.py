@@ -1,6 +1,6 @@
 import csv
 from django.core.management.base import BaseCommand
-from chemistry.models import Element
+from apps.chemistry.models import Element
 
 def parse_int(val):
     try:

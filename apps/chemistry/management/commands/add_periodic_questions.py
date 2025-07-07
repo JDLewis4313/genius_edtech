@@ -1,7 +1,7 @@
 # Save as: apps/chemistry/management/commands/add_periodic_questions.py
 
 from django.core.management.base import BaseCommand
-from quiz.models import Module, Topic, Question, Choice
+from apps.quiz.models import Module, Topic, Question, Choice
 
 class Command(BaseCommand):
     help = 'Add periodic table specific quiz questions'

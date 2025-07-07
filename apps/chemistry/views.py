@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from .models import Element
 from apps.analytics.models import Event  # ✅ Analytics logging
 import re
-from quiz.models import Question
+from apps.quiz.models import Question 
 import json
 
 def dashboard(request):

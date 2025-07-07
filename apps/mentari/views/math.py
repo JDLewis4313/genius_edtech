@@ -6,42 +6,51 @@ from apps.mentari.services.geometry import GeometryHelper
 from apps.mentari.services.trigonometry import TrigSolver
 from apps.mentari.services.calculus import CalculusSolver
 from apps.mentari.services.visualizer import MathVisualizer
-import json  
+import json
 
-solver = AlgebraSolver()
-geo = GeometryHelper()
-trig = TrigSolver()
-visualizer = MathVisualizer()
-
-@csrf_exempt
-def plot_expression_view(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        expr = data.get("expression", "")
-        image_data = visualizer.plot_expression(expr)
-        return JsonResponse({"image": image_data})
 @csrf_exempt
 def math_support_view(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        topic = data.get("topic")
-        question = data.get("question", "")
-
-        if topic == "algebra":
-            result = solver.solve_equation(question)
-        elif topic == "geometry":
-            if "radius" in data:
-                result = geo.area_of_circle(data["radius"])
-            elif "a" in data and "b" in data:
-                result = geo.pythagorean_theorem(data["a"], data["b"])
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            expression = data.get('expression', '')
+            operation = data.get('operation', 'solve')
+            
+            if operation == 'algebra':
+                solver = AlgebraSolver()
+                result = solver.solve_equation(expression)
+            elif operation == 'calculus':
+                solver = CalculusSolver()
+                result = solver.analyze_expression(expression)
+            elif operation == 'trigonometry':
+                solver = TrigSolver()
+                result = solver.solve_trig_expression(expression)
+            elif operation == 'geometry':
+                helper = GeometryHelper()
+                result = helper.area_of_circle(expression)  # Default example
             else:
-                result = "Missing geometry parameters."
-        elif topic == "trigonometry":
-            result = trig.solve_trig_expression(question)
-        elif topic == "calculus":
-            result = trig.solve_calculus_expression(question)
-        else:
-            result = "Unknown topic."
+                # Default to algebra
+                solver = AlgebraSolver()
+                result = solver.solve_equation(expression)
+            
+            return JsonResponse({'result': result})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return render(request, 'mentari/math_support.html')
 
-        return JsonResponse({"result": result})
-    return render(request, "mentari/math_support.html")
+@csrf_exempt  
+def plot_expression_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            expression = data.get('expression', '')
+            
+            visualizer = MathVisualizer()
+            plot_data = visualizer.plot_expression(expression)
+            
+            return JsonResponse({'plot': plot_data})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)

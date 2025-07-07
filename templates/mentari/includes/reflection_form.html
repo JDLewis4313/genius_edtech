@@ -1,0 +1,25 @@
+<div class="card p-3">
+  <h5>Write a Reflection</h5>
+  <textarea id="reflection-input" class="form-control mb-2" rows="3" placeholder="What are you thinking about today?"></textarea>
+  <button class="btn btn-sm btn-success" onclick="submitReflection()">Save Reflection</button>
+</div>
+
+<script>
+function submitReflection() {
+  const message = document.getElementById("reflection-input").value.trim();
+  if (!message) return;
+  fetch("/ai/reflection/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken")
+    },
+    body: JSON.stringify({ message })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+    document.getElementById("reflection-input").value = "";
+  });
+}
+</script>

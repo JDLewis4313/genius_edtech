@@ -1,0 +1,26 @@
+<h5 class="mt-4">Visualize an Expression</h5>
+<input type="text" id="plot-input" class="form-control mb-2" placeholder="e.g. sin(x) + x**2">
+<button class="btn btn-outline-secondary" onclick="plotExpression()">Plot</button>
+<div id="plot-output" class="mt-3"></div>
+
+<script>
+function plotExpression() {
+  const expr = document.getElementById("plot-input").value;
+  fetch("/ai/math/plot/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken")
+    },
+    body: JSON.stringify({ expression: expr })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.image.startsWith("data:image")) {
+      document.getElementById("plot-output").innerHTML = `<img src="${data.image}" class="img-fluid border rounded">`;
+    } else {
+      document.getElementById("plot-output").innerText = data.image;
+    }
+  });
+}
+</script>

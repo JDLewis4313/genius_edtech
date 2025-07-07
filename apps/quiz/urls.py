@@ -2,15 +2,17 @@ from django.urls import path
 from . import views
 
 app_name = 'quiz'
+
 urlpatterns = [
     path('', views.quiz, name='quiz'),
     path('topic/<int:topic_id>/', views.topic_detail, name='topic_detail'),
-    path('take/<int:topic_id>/', views.take_quiz, name='take_quiz'),
+    path('take/<int:topic_id>/', views.take_quiz, name='take_quiz'),  # ✅ This is the one Mentari uses
     path('results/<int:topic_id>/', views.quiz_results, name='quiz_results'),
-    path('<slug:module_slug>/', views.quiz_detail, name='quiz_detail'),  # <-- renamed!
+    path('<slug:module_slug>/', views.quiz_detail, name='quiz_detail'),
 
-    # API endpoints - KEEP ONLY THESE
+    # API endpoints
     path('api/topics/<int:module_id>/', views.get_topics, name='get_topics'),
     path('api/questions/<int:topic_id>/', views.get_quiz_questions, name='get_quiz_questions'),
     path('submit-score/', views.submit_score, name='submit_score'),
+    path("start/", views.take_quiz, name="start"),  # optional alias
 ]
