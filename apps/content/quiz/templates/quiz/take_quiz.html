@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Take Quiz: {{ topic.title }} - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="text-center mb-5 fade-in">
+    <h1 class="display-3 fw-bold text-gradient mb-3">
+      <i class="fas fa-pen-fancy"></i> {{ topic.title }} Quiz
+    </h1>
+    <p class="lead text-muted">
+      Test your understanding of <strong>{{ topic.title }}</strong>. Good luck!
+    </p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <form method="post">
+        {% csrf_token %}
+        {% if questions %}
+          {% for question in questions %}
+          <div class="card mb-4 shadow fade-in stagger-{{ forloop.counter }}">
+            <div class="card-body">
+              <h5 class="mb-3">
+                <span class="badge bg-u me-2">Q{{ forloop.counter }}</span>
+                {{ question.text }}
+              </h5>
+              <ul class="list-group list-group-flush">
+                {% for choice in question.choices.all %}
+                <li class="list-group-item bg-dark text-light px-0 py-1 rounded">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio"
+                           name="question_{{ question.id }}"
+                           id="q{{ question.id }}_{{ choice.id }}"
+                           value="{{ choice.id }}" required>
+                    <label class="form-check-label" for="q{{ question.id }}_{{ choice.id }}">
+                      {{ choice.text }}
+                    </label>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endfor %}
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-paper-plane me-2"></i> Submit Quiz
+            </button>
+          </div>
+        {% else %}
+          <div class="alert alert-warning text-center">
+            <i class="fas fa-exclamation-circle"></i>
+            No questions available for this topic yet. Please check back soon!
+          </div>
+        {% endif %}
+      </form>
+    </div>
+
+    <div class="col-lg-4 mt-4 mt-lg-0">
+      <div class="card mb-4 shadow">
+        <div class="card-header text-center bg-dark text-light">
+          <h5 class="mb-0"><i class="fas fa-info-circle"></i> Quiz Details</h5>
+        </div>
+        <div class="card-body bg-light">
+          <p><span class="fw-bold text-u">Module:</span> {{ topic.module.title }}</p>
+          <p><span class="fw-bold text-s">Difficulty:</span> {{ topic.difficulty|title }}</p>
+          <p><span class="fw-bold text-er">Total Questions:</span> {{ questions.count }}</p>
+        </div>
+      </div>
+      <div class="card shadow">
+        <div class="card-header text-center bg-dark text-light">
+          <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Tips for Success</h5>
+        </div>
+        <div class="card-body bg-light">
+          <ul class="mb-3">
+            <li>Read each question carefully.</li>
+            <li>Eliminate clearly wrong answers first.</li>
+            <li>Trust your understanding – you’ve got this!</li>
+          </ul>
+          <div class="text-center">
+            <a href="{% url 'quiz:topic_detail' topic.id %}" class="btn btn-outline-primary btn-sm">
+              <i class="fas fa-arrow-left"></i> Back to Topic
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

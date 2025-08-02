@@ -6,7 +6,7 @@ from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
-class LearningContext:
+class LearningBrain:
     """Manages conversation context and learning progress"""
 
     def __init__(self, user_id):
@@ -40,7 +40,8 @@ class LearningContext:
                 'difficulty_level': 'medium',
                 'explanation_style': 'balanced',
                 'encouragement_level': 'normal'
-            }
+            },
+            'nl_insights': []  # NEW: For storing NL insights
         }
 
     def save_context(self):
@@ -97,6 +98,10 @@ class LearningContext:
                 self.context['learning_style'] = 'sequential'
             elif 'examples' in style_indicator:
                 self.context['learning_style'] = 'practical'
+            elif 'conceptual' in style_indicator:
+                self.context['learning_style'] = 'conceptual'
+            elif 'procedural' in style_indicator:
+                self.context['learning_style'] = 'procedural'
 
             self.save_context()
         except Exception as e:
@@ -203,3 +208,67 @@ class LearningContext:
         except Exception as e:
             logger.error(f"Failed to get learning recommendations for user {self.user_id}: {e}")
             return []
+
+    # NEW METHODS for NL integration:
+
+    def update_context_with_nl(self, message, enhanced_context):
+        """Update context with Natural Language insights"""
+        try:
+            if not enhanced_context.get('nl_available'):
+                return
+            
+            # Extract insights from NL analysis
+            intent = enhanced_context.get('intent_analysis', {}).get('primary_intent')
+            emotion = enhanced_context.get('emotion_analysis', {}).get('primary_emotion')
+            entities = enhanced_context.get('entity_analysis', {}).get('entities', {})
+            learning_indicators = enhanced_context.get('learning_indicators', {})
+            
+            # Update mood based on emotion analysis
+            if emotion and emotion != 'neutral':
+                self.context['mood'] = emotion
+            
+            # Track learning struggles
+            struggle_level = learning_indicators.get('struggle_level')
+            if struggle_level == 'high':
+                # Add to knowledge gaps if struggling
+                topic = self._extract_topic_from_entities(entities)
+                if topic:
+                    self.add_knowledge_gap(topic)
+            
+            # Update learning style based on help type needed
+            help_type = learning_indicators.get('help_type_needed')
+            if help_type:
+                self.update_learning_style(help_type)
+            
+            # Store recent NL insights
+            if 'nl_insights' not in self.context:
+                self.context['nl_insights'] = []
+            
+            self.context['nl_insights'].append({
+                'timestamp': datetime.now().isoformat(),
+                'intent': intent,
+                'emotion': emotion,
+                'struggle_level': struggle_level,
+                'help_type': help_type
+            })
+            
+            # Keep only last 10 insights
+            if len(self.context['nl_insights']) > 10:
+                self.context['nl_insights'] = self.context['nl_insights'][-10:]
+            
+            self.save_context()
+            
+        except Exception as e:
+            logger.error(f"Failed to update context with NL for user {self.user_id}: {e}")
+
+    def _extract_topic_from_entities(self, entities):
+        """Extract the main topic from NL entities"""
+        if 'chemistry_topics' in entities:
+            return 'Chemistry'
+        elif 'math_topics' in entities:
+            return 'Mathematics'
+        elif entities.get('chemical_formulas'):
+            return 'Chemistry'
+        elif entities.get('math_expressions'):
+            return 'Mathematics'
+        return None

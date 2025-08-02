@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated and user.is_staff %}
+  <p><a class="btn btn-success" href="{% url 'blog:create_post' %}">+ New Blog Post</a></p>
+{% endif %}
+
+<div class="container mt-5">
+  <h1 class="mb-4 text-gradient">Latest Insights</h1>
+
+  {% if posts %}
+    {% for post in posts %}
+      <div class="mb-4 p-4 bg-dark text-white rounded shadow">
+        <h3>
+          {% if post.is_external %}
+            <a href="{% url 'blog:external_detail' post.id %}" class="text-decoration-none text-light">
+              {{ post.title|default:"Untitled" }} <span class="badge bg-info">External</span>
+            </a>
+          {% else %}
+            <a href="{% url 'blog:detail' post.slug %}" class="text-decoration-none text-light">
+              {{ post.title|default:"Untitled" }}
+            </a>
+          {% endif %}
+        </h3>
+        <p class="text-muted small">
+          {{ post.created_at|date:"F d, Y" }}
+        </p>
+        <p>{{ post.excerpt|default:"No summary available." }}</p>
+        {% if not post.is_external %}
+          <a href="{% url 'blog:detail' post.slug %}" class="btn btn-outline-primary btn-sm mt-2">Read more</a>
+        {% else %}
+          <a href="{% url 'blog:external_detail' post.id %}" class="btn btn-outline-primary btn-sm mt-2">Read more</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-info">
+      <p class="mb-0">No blog posts found. New content will appear here soon!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

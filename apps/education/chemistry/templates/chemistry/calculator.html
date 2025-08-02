@@ -1,0 +1,384 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Chemistry Calculator - GeNiUS EdTech{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calculator-container {
+        background: rgba(0, 0, 0, 0.2);
+        border: 2px solid var(--u-green);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+    }
+    
+    .calc-button {
+        background: var(--primary-gradient);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: bold;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .calc-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);
+    }
+    
+    .result-display {
+        background: rgba(0, 184, 148, 0.1);
+        border: 1px solid var(--u-green);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        min-height: 100px;
+    }
+    
+    .tab-button {
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        border: 1px solid var(--u-green);
+        border-radius: 8px 8px 0 0;
+        padding: 10px 20px;
+        margin-right: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .tab-button.active {
+        background: var(--primary-gradient);
+        color: var(--bg-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-4">
+                <h1 class="display-4 text-gradient fw-bold">Chemistry Calculator</h1>
+                <p class="lead">Advanced calculations for chemistry problems</p>
+            </div>
+            
+            <div class="calculator-container">
+                <!-- Calculator Tabs -->
+                <div class="mb-4">
+                    <button class="tab-button active" onclick="switchTab('basic')">Basic Calculations</button>
+                    <button class="tab-button" onclick="switchTab('gas')">Gas Laws</button>
+                    <button class="tab-button" onclick="switchTab('solutions')">Solutions</button>
+                    <button class="tab-button" onclick="switchTab('thermo')">Thermodynamics</button>
+                </div>
+                
+                <!-- Calculation Type Selection -->
+                <div class="mb-4">
+                    <label for="calculationType" class="form-label">Select Calculation Type:</label>
+                    <select id="calculationType" class="form-select" onchange="updateInputFields()">
+                        <option value="molar_mass">Molar Mass</option>
+                        <option value="molarity">Molarity</option>
+                        <option value="ideal_gas">Ideal Gas Law</option>
+                        <option value="ph">pH Calculation</option>
+                    </select>
+                </div>
+                
+                <!-- Dynamic Input Fields -->
+                <div id="inputFields" class="mb-4">
+                    <div id="molarMassInputs">
+                        <label for="formula" class="form-label">Chemical Formula:</label>
+                        <input type="text" id="formula" class="form-control" placeholder="e.g., H2O, NaCl, C6H12O6">
+                        <small class="text-muted">Enter chemical formula using proper capitalization</small>
+                    </div>
+                </div>
+                
+                <!-- Calculate Button -->
+                <div class="text-center mb-4">
+                    <button onclick="performCalculation()" class="calc-button btn-lg">
+                        <i class="fas fa-calculator"></i> Calculate
+                    </button>
+                    <button onclick="clearCalculation()" class="btn btn-outline-light ms-2">
+                        Clear
+                    </button>
+                </div>
+                
+                <!-- Results Display -->
+                <div id="results" class="result-display">
+                    <h5>Results will appear here</h5>
+                    <p class="text-muted">Enter values and click Calculate to see results</p>
+                </div>
+            </div>
+            
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5>How to Use the Calculator</h5>
+                    <ul>
+                        <li><strong>Molar Mass:</strong> Enter a chemical formula (e.g., H2O, NaCl)</li>
+                        <li><strong>Molarity:</strong> Calculate concentration from moles and volume</li>
+                        <li><strong>Gas Laws:</strong> Use ideal gas law calculations (PV = nRT)</li>
+                        <li><strong>pH:</strong> Calculate pH from H+ concentration</li>
+                    </ul>
+                    <div class="bg-glass p-3 rounded-3 mt-3">
+                        <h6 class="text-u mb-2">Educational Context</h6>
+                        <p class="small mb-0">
+                            These calculations are essential for chemistry students to understand the relationships between different chemical properties. Try experimenting with different values to see how they affect the results.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentTab = 'basic';
+
+function switchTab(tabName) {
+    currentTab = tabName;
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    updateCalculationOptions();
+}
+
+function updateCalculationOptions() {
+    const calculationType = document.getElementById('calculationType');
+    calculationType.innerHTML = '';
+    const options = {
+        basic: [
+            {value: 'molar_mass', text: 'Molar Mass'},
+            {value: 'molarity', text: 'Molarity'},
+            {value: 'percent_composition', text: 'Percent Composition'}
+        ],
+        gas: [
+            {value: 'ideal_gas', text: 'Ideal Gas Law'},
+            {value: 'charles_law', text: 'Charles Law'},
+            {value: 'boyles_law', text: 'Boyles Law'}
+        ],
+        solutions: [
+            {value: 'molarity', text: 'Molarity'},
+            {value: 'dilution', text: 'Solution Dilution'},
+            {value: 'ph', text: 'pH Calculation'}
+        ],
+        thermo: [
+            {value: 'heat_capacity', text: 'Heat Capacity'},
+            {value: 'enthalpy', text: 'Enthalpy Change'}
+        ]
+    };
+    options[currentTab].forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.text;
+        calculationType.appendChild(optionElement);
+    });
+    updateInputFields();
+}
+
+function updateInputFields() {
+    const calculationType = document.getElementById('calculationType').value;
+    const inputFields = document.getElementById('inputFields');
+    let fieldsHTML = '';
+    switch(calculationType) {
+        case 'molar_mass':
+            fieldsHTML = `
+                <label for="formula" class="form-label">Chemical Formula:</label>
+                <input type="text" id="formula" class="form-control" placeholder="e.g., H2O, NaCl, C6H12O6">
+                <small class="text-muted">Enter chemical formula using proper capitalization</small>
+            `;
+            break;
+        // ...rest unchanged...
+        case 'molarity':
+            fieldsHTML = `
+                <label for="moles" class="form-label">Moles of solute:</label>
+                <input type="number" id="moles" class="form-control" placeholder="e.g., 0.5" step="0.001">
+                <label for="volume" class="form-label">Volume of solution (L):</label>
+                <input type="number" id="volume" class="form-control" placeholder="e.g., 1.0" step="0.001">
+            `;
+            break;
+        case 'ideal_gas':
+            fieldsHTML = `
+                <label for="pressure" class="form-label">Pressure (atm):</label>
+                <input type="number" id="pressure" class="form-control" placeholder="e.g., 1.0" step="0.001">
+                <label for="volume" class="form-label">Volume (L):</label>
+                <input type="number" id="volume" class="form-control" placeholder="e.g., 22.4" step="0.001">
+                <label for="temperature" class="form-label">Temperature (K):</label>
+                <input type="number" id="temperature" class="form-control" placeholder="e.g., 273.15" step="0.1">
+            `;
+            break;
+        case 'ph':
+            fieldsHTML = `
+                <label for="concentration" class="form-label">H+ Concentration (M):</label>
+                <input type="number" id="concentration" class="form-control" placeholder="e.g., 1e-7" step="1e-14">
+            `;
+            break;
+    case 'heat_capacity':
+        fieldsHTML = `
+            <label for="q" class="form-label">Heat absorbed (q) [Joules]:</label>
+            <input type="number" id="q" class="form-control" placeholder="e.g., 150" step="0.01">
+            <label for="mass" class="form-label">Mass (m) [grams]:</label>
+            <input type="number" id="mass" class="form-control" placeholder="e.g., 50" step="0.01">
+            <label for="deltaT" class="form-label">Temperature Change (ΔT) [°C]:</label>
+            <input type="number" id="deltaT" class="form-control" placeholder="e.g., 10" step="0.01">
+        `;
+        break;
+    case 'enthalpy':
+        fieldsHTML = `
+            <label for="products" class="form-label">Sum of Enthalpies (products) [kJ/mol]:</label>
+            <input type="number" id="products" class="form-control" placeholder="e.g., -393.5" step="0.01">
+            <label for="reactants" class="form-label">Sum of Enthalpies (reactants) [kJ/mol]:</label>
+            <input type="number" id="reactants" class="form-control" placeholder="e.g., 0" step="0.01">
+        `;
+        break;
+    }
+    inputFields.innerHTML = fieldsHTML;
+}
+
+function performCalculation() {
+    const calculationType = document.getElementById('calculationType').value;
+    const resultsDiv = document.getElementById('results');
+    try {
+        if (calculationType === "molar_mass") {
+            const formula = document.getElementById('formula').value;
+            if (!formula) throw new Error('Please enter a chemical formula');
+            // Send AJAX to backend for real calculation!
+            resultsDiv.innerHTML = `<div class="alert alert-info">Calculating molar mass for ${formula}...</div>`;
+            fetch("{% url 'chemistry:ajax_calculate_molar_mass' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: JSON.stringify({ formula })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    resultsDiv.innerHTML = `
+                        <h5>Molar Mass Calculation</h5>
+                        <p><strong>Formula:</strong> ${data.formula}</p>
+                        <p><strong>Molar Mass:</strong> ${data.molar_mass.toFixed(3)} g/mol</p>
+                        <p><strong>Steps:</strong></p>
+                        <ol>${data.steps.map(step => `<li>${step}</li>`).join('')}</ol>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                }
+            }).catch(err => {
+                resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+            });
+            return;
+        }
+        // ...other cases as before...
+        let result = '';
+        switch(calculationType) {
+            case 'molarity':
+                const moles = parseFloat(document.getElementById('moles').value);
+                const volume = parseFloat(document.getElementById('volume').value);
+                if (isNaN(moles) || isNaN(volume)) throw new Error('Please enter valid numbers');
+                if (volume <= 0) throw new Error('Volume must be greater than 0');
+                const molarity = moles / volume;
+                resultsDiv.innerHTML = `
+                    <h5>Molarity Calculation</h5>
+                    <p><strong>Moles:</strong> ${moles} mol</p>
+                    <p><strong>Volume:</strong> ${volume} L</p>
+                    <p><strong>Molarity:</strong> ${molarity.toFixed(3)} M</p>
+                    <p><strong>Formula:</strong> M = n / V</p>
+                `;
+                break;
+            case 'ideal_gas':
+                const pressure = parseFloat(document.getElementById('pressure').value);
+                const gasVolume = parseFloat(document.getElementById('volume').value);
+                const temperature = parseFloat(document.getElementById('temperature').value);
+                if (isNaN(pressure) || isNaN(gasVolume) || isNaN(temperature)) throw new Error('Please enter valid numbers');
+                const R = 0.08206;
+                const calculatedMoles = (pressure * gasVolume) / (R * temperature);
+                resultsDiv.innerHTML = `
+                    <h5>Ideal Gas Law Calculation</h5>
+                    <p><strong>Pressure:</strong> ${pressure} atm</p>
+                    <p><strong>Volume:</strong> ${gasVolume} L</p>
+                    <p><strong>Temperature:</strong> ${temperature} K</p>
+                    <p><strong>Moles:</strong> ${calculatedMoles.toFixed(3)} mol</p>
+                    <p><strong>Formula:</strong> PV = nRT</p>
+                `;
+                break;
+            case 'ph':
+                const concentration = parseFloat(document.getElementById('concentration').value);
+                if (isNaN(concentration) || concentration <= 0) throw new Error('Please enter a valid positive concentration');
+                const ph = -Math.log10(concentration);
+                const poh = 14 - ph;
+                resultsDiv.innerHTML = `
+                    <h5>pH Calculation</h5>
+                    <p><strong>H+ Concentration:</strong> ${concentration.toExponential(2)} M</p>
+                    <p><strong>pH:</strong> ${ph.toFixed(2)}</p>
+                    <p><strong>pOH:</strong> ${poh.toFixed(2)}</p>
+                    <p><strong>Formula:</strong> pH = -log[H+]</p>
+                `;
+                break;
+    case 'heat_capacity':
+        const q = parseFloat(document.getElementById('q').value);
+        const mass = parseFloat(document.getElementById('mass').value);
+        const deltaT = parseFloat(document.getElementById('deltaT').value);
+        if (isNaN(q) || isNaN(mass) || isNaN(deltaT)) throw new Error('Please enter valid values for all fields');
+        if (mass === 0 || deltaT === 0) throw new Error('Mass and ΔT must not be zero');
+        const c = q / (mass * deltaT);
+        resultsDiv.innerHTML = `
+            <h5>Heat Capacity Calculation</h5>
+            <p><strong>q (heat):</strong> ${q} J</p>
+            <p><strong>m (mass):</strong> ${mass} g</p>
+            <p><strong>ΔT (temp change):</strong> ${deltaT} °C</p>
+            <p><strong>Specific Heat (c):</strong> ${c.toFixed(4)} J/g°C</p>
+            <p><strong>Formula:</strong> c = q / (m × ΔT)</p>
+        `;
+        break;
+    case 'enthalpy':
+        const products = parseFloat(document.getElementById('products').value);
+        const reactants = parseFloat(document.getElementById('reactants').value);
+        if (isNaN(products) || isNaN(reactants)) throw new Error('Please enter valid values for all fields');
+        const deltaH = products - reactants;
+        resultsDiv.innerHTML = `
+            <h5>Enthalpy Change Calculation</h5>
+            <p><strong>Sum of Enthalpies (products):</strong> ${products} kJ/mol</p>
+            <p><strong>Sum of Enthalpies (reactants):</strong> ${reactants} kJ/mol</p>
+            <p><strong>ΔH (Enthalpy Change):</strong> ${deltaH.toFixed(2)} kJ/mol</p>
+            <p><strong>Formula:</strong> ΔH = ΣH(products) - ΣH(reactants)</p>
+        `;
+        break;
+            default:
+                throw new Error('Unknown calculation type');
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    }
+}
+
+function clearCalculation() {
+    document.getElementById('results').innerHTML = `
+        <h5>Results will appear here</h5>
+        <p class="text-muted">Enter values and click Calculate to see results</p>
+    `;
+    document.querySelectorAll('.form-control').forEach(input => input.value = '');
+}
+
+// ---- Helper to get CSRF token for AJAX ----
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateInputFields();
+});
+</script>
+{% endblock %}

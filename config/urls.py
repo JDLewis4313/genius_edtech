@@ -5,18 +5,33 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Core
     path('', include('apps.core.urls')),
-    path('chemistry/', include('apps.chemistry.urls')), 
-    path('quiz/', include('apps.quiz.urls', namespace='quiz')), 
-    path('code-editor/', include('apps.code_editor.urls')),
-    path('tutorials/', include('apps.tutorials.urls')),
-    path('users/', include('apps.users.urls', namespace='users')),
-    path('blog/', include('apps.blog.urls', namespace='blog')),
-    path('community/', include('apps.community.urls', namespace='community')),
-    path("ai/", include("apps.mentari.urls")),
-    path('', include('apps.analytics.urls')),
 
+    # API interface
+    path('api/', include('apps.api.urls')),
 
+    # Education
+    path('chemistry/', include('apps.education.chemistry.urls')),
+    path('learning/', include('apps.education.learning_modules.urls')),
+
+    # Content
+    path('blog/', include('apps.content.blog.urls')),
+    path('quiz/', include('apps.content.quiz.urls')),
+    path('tutorials/', include('apps.content.tutorials.urls')),
+    path('code-editor/', include('apps.content.code_editor.urls')),
+
+    # Social
+    path('community/', include('apps.social.community.urls')),
+    path('interactions/', include('apps.social.interactions.urls')),
+
+    # Users & AI
+    path('users/', include('apps.users.urls')),
+    path('ai/', include('apps.mentari.urls')),
+
+    # Analytics (optional routing)
+    path('analytics/', include('apps.analytics.urls')),
 ]
 
 if settings.DEBUG:

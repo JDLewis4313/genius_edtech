@@ -1,0 +1,17 @@
+from django.urls import path, include
+from . import views
+
+app_name = 'chemistry'
+
+urlpatterns = [
+    path('', views.dashboard, name='dashboard'),
+    path('calculator/', views.calculator, name='calculator'),
+    path('molecular-viewer/', views.molecular_viewer, name='molecular_viewer'),
+    path('periodic-table/', views.periodic_table, name='periodic_table'),
+    path('element/<int:atomic_number>/', views.element_detail, name='element_detail'),
+    path('ajax/calculate-molar-mass/', views.calculate_molar_mass, name='ajax_calculate_molar_mass'),
+
+    # Mount DRF API routes from chemistry/api/urls.py
+    path('api/', include('apps.education.chemistry.api.urls')),
+
+]

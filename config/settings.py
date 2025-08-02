@@ -4,22 +4,15 @@ from pathlib import Path
 from decouple import config, Csv
 import dj_database_url
 
-# Build paths inside the project
+# BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Add apps to Python path
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
-# Read environment variables
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-key-for-development-only')
+# Security
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-key-for-dev-only')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Allowed hosts & CSRF trusted origins
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1',
-    cast=Csv()
-) + [
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv()) + [
     'geniusedtech-production.up.railway.app',
     '.up.railway.app',
 ]
@@ -28,8 +21,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.up.railway.app',
 ]
 
-# Application definition
+# Installed Apps
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,38 +31,48 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third-party apps
+    # Third-party
     'rest_framework',
     'django_extensions',
     'django_ckeditor_5',
 
-    # Project apps
+    # Core
     'apps.core',
-    'apps.chemistry',
-    'apps.quiz',
-    'apps.code_editor',
-    'apps.users',
-    'apps.tutorials',
-    'apps.blog',
-    'apps.interactions',
-    'apps.community',
-    'apps.mentari',
+
+    # Modular domains
     'apps.analytics',
-    
+    'apps.api',
+    'apps.users',
+    'apps.mentari',
+
+    # Education
+    'apps.education.chemistry',
+    'apps.education.learning_modules',
+
+
+    # Content
+    'apps.content.blog',
+    'apps.content.code_editor',
+    'apps.content.quiz',
+    'apps.content.tutorials',
+
+    # Social
+    'apps.social.community',
+    'apps.social.interactions',
 ]
 
-CKEDITOR_CONFIGS = {
+# CKEditor config
+CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': 'Full',
-        'height': 400,
-        'width': 'auto',
-    }
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload'],
+    },
 }
 
-
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,12 +81,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# URL and WSGI
 ROOT_URLCONF = 'config.urls'
+WSGI_APPLICATION = 'config.wsgi.application'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'apps/api/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,30 +102,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-
-# Database configuration
+# Database
 IN_RAILWAY = config('RAILWAY_ENVIRONMENT', default='').lower() == 'production'
 
-if IN_RAILWAY:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=False,
-        )
-    }
-else:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config(
-                'DATABASE_URL',
-                default='sqlite:///db.sqlite3'
-            ),
-            conn_max_age=600,
-            ssl_require=False,
-        )
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default='sqlite:///db.sqlite3'),
+        conn_max_age=600,
+        ssl_require=False,
+    )
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -134,51 +127,41 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (with WhiteNoise)
+# Static + Media
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Security settings for production
+# Security: production vs development
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
 else:
-    # For local development: No HTTPS redirect or secure cookies
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
-# Logging configuration
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
+        'verbose': {'format': '{levelname} {asctime} {module} {message}', 'style': '{'},
+        'simple': {'format': '{levelname} {message}', 'style': '{'},
     },
     'handlers': {
         'console': {
@@ -186,10 +169,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
+    'root': {'handlers': ['console'], 'level': 'INFO'},
     'loggers': {
         'django': {
             'handlers': ['console'],
@@ -201,13 +181,5 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': False,
         },
-    },
-}
-
-# CKEditor 5 Configuration
-CKEDITOR_5_CONFIGS = {
-    'default': {
-        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
-                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
     },
 }

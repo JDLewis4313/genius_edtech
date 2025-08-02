@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import ProfileForm
-from apps.quiz.models import QuizAttempt  # Adjust path if app is named differently
+from apps.content.quiz.models import QuizAttempt  # Adjust path if app is named differently
 
 def login_view(request):
     if request.user.is_authenticated:

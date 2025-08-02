@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block content %}
+<h2 class="mb-4">Welcome to Mentari</h2>
+<div class="row">
+  <div class="col-md-6">
+    {% include "mentari/includes/math_topics.html" %}
+    {% include "mentari/includes/advising_timeline.html" %}
+  </div>
+  <div class="col-md-6">
+    {% include "mentari/includes/reflection_form.html" %}
+    <a href="{% url 'mentari:mentari_chat' %}" class="btn btn-outline-primary mt-3">Talk to Mentari</a>
+  </div>
+</div>
+{% endblock %}

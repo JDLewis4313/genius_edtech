@@ -90,8 +90,8 @@ def mentari_chat_view(request):
         # Add conversation history for authenticated users
         if user and user.is_authenticated:
             try:
-                from apps.mentari.services.learning_brain import LearningContext
-                context = LearningContext(user.id)
+                from apps.mentari.services.learning_brain import LearningBrain
+                context = LearningBrain(user.id)
                 recent_history = context.context.get('conversation_history', [])[-3:]
                 if recent_history:
                     response_data['conversation_summary'] = {

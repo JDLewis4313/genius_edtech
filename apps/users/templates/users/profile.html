@@ -1,0 +1,144 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load utils %}
+
+{% block title %}{{ user.username }}'s Profile - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Profile Header -->
+  <div class="position-relative mb-5">
+    <!-- Banner -->
+    <div class="rounded shadow-sm overflow-hidden mb-4" style="height: 220px;">
+      <img src="{{ profile.banner.url }}" alt="Banner" class="w-100 h-100 object-fit-cover">
+    </div>
+
+    <!-- Avatar + Name Row -->
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between px-3 px-md-4">
+      <div class="d-flex align-items-center gap-4">
+        <div class="rounded-circle border border-3 border-white shadow overflow-hidden" style="width: 140px; height: 140px;">
+          <img src="{{ profile.avatar.url }}" alt="Avatar" class="w-100 h-100 object-fit-cover">
+        </div>
+        <div>
+          <h2 class="fw-bold mb-1 text-u">{{ user.username }}</h2>
+          {% if profile.element %}
+            <span class="badge bg-u text-white px-3 py-2 fs-6">Element: {{ profile.element }}</span>
+          {% endif %}
+          <p class="text-muted mb-0"><small>Joined {{ user.date_joined|date:"F Y" }}</small></p>
+        </div>
+      </div>
+      <div class="mt-4 mt-md-0">
+        <a href="{% url 'users:edit_profile' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-edit me-1"></i> Edit Profile
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Left Column -->
+    <div class="col-lg-4">
+      <!-- Contact Info -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="mb-3 text-gradient">Contact</h5>
+          <p class="mb-1"><i class="fas fa-envelope me-2 text-muted"></i>{{ user.email }}</p>
+        </div>
+      </div>
+
+      <!-- Reactions -->
+      {% if reaction_summary %}
+      <div class="card">
+        <div class="card-header">
+          <strong>Reactions Earned</strong>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0 fs-5">
+            {% for key, emoji in REACTION_CHOICES %}
+              {% with reaction_summary|get_item:key as count %}
+                {% if count %}
+                  <li class="mb-1">{{ emoji }} × {{ count }}</li>
+                {% endif %}
+              {% endwith %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Main Column -->
+    <div class="col-lg-8">
+      <!-- About Me -->
+      <div class="card mb-4">
+        <div class="card-header bg-light border-bottom">
+          <h5 class="mb-0 text-gradient">About Me</h5>
+        </div>
+        <div class="card-body">
+          <p class="lead mb-0">{{ profile.bio|default:"This user hasn't added a bio yet." }}</p>
+        </div>
+      </div>
+
+      <!-- Account Info -->
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Account Information</h5>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Username</dt>
+            <dd class="col-sm-8">{{ user.username }}</dd>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">{{ user.email }}</dd>
+            <dt class="col-sm-4">Joined</dt>
+            <dd class="col-sm-8">{{ user.date_joined|date:"F d, Y" }}</dd>
+          </dl>
+        </div>
+        <div class="card-footer text-end">
+          <a href="{% url 'tutorials:my_tutorials' %}" class="btn btn-primary">
+            <i class="fas fa-graduation-cap me-2"></i> My Tutorials
+          </a>
+        </div>
+      </div>
+
+      <!-- Quiz History -->
+      {% if quiz_attempts %}
+      <div class="card">
+        <div class="card-header bg-u text-white">
+          <h5 class="mb-0">Quiz Performance</h5>
+        </div>
+        <div class="card-body table-responsive">
+          <table class="table table-bordered align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Topic</th>
+                <th>Module</th>
+                <th>Score</th>
+                <th>Correct / Total</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for attempt in quiz_attempts %}
+              <tr>
+                <td>{{ attempt.topic.title }}</td>
+                <td>{{ attempt.topic.module.title }}</td>
+                <td class="fw-bold text-success">{{ attempt.score|floatformat:0 }}%</td>
+                <td>{{ attempt.correct_answers }} / {{ attempt.total_questions }}</td>
+                <td>{{ attempt.completed_at|date:"M d, Y @ H:i" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-warning mt-4" role="alert">
+        <i class="fas fa-info-circle me-1"></i> You haven't taken any quizzes yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

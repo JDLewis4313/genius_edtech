@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% load blog_extras %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <article class="bg-dark text-white p-5 rounded shadow">
+    <h1 class="mb-3 text-gradient">{{ post.title }}</h1>
+    <p class="text-muted small">{{ post.created_at|date:"F d, Y" }}</p>
+    <hr class="border-secondary mb-4">
+    <div class="fs-5">{{ post.content|safe }}</div>
+  </article>
+
+  {% if comments %}
+    {% include "includes/comments.html" with comments=comments %}
+  {% endif %}
+
+  {% if REACTION_CHOICES %}
+    {% include "includes/reactions.html" with reactions=REACTION_CHOICES %}
+  {% endif %}
+
+  {% if reaction_count %}
+  <div class="mt-4">
+    <h6 class="mb-2">Reactions so far:</h6>
+    <div class="d-flex flex-wrap gap-3">
+      {% for code, emoji in REACTION_CHOICES %}
+        {% with count=reaction_count|get_item:code %}
+          {% if count %}
+          <span class="badge bg-light text-dark px-3 py-2 shadow-sm">
+            {{ emoji }} × {{ count }}
+          </span>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% if post.thread %}
+  <div class="mt-4 text-center">
+    <a href="{% url 'community:thread_detail' post.thread.slug %}" class="btn btn-outline-info">
+      Join the discussion in The Commons →
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

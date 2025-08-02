@@ -1,0 +1,425 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Molecular Viewer - GeNiUS EdTech{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 fade-in">
+        <h1 class="text-gradient mb-3">
+            <i class="fas fa-atom"></i> 3D Molecular Viewer
+        </h1>
+        <p style="color: var(--text-secondary);">Visualize molecular structures in 3D space</p>
+    </div>
+    
+    <!-- Molecule Selection -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-search"></i> Select Molecule or Protein</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Small molecules -->
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Water" data-formula="H2O" data-type="small" data-atoms="3" data-bonds="2">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tint" style="color: var(--u-green); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Water</h6>
+                                    <p class="card-text small">H₂O</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Methane" data-formula="CH4" data-type="small" data-atoms="5" data-bonds="4">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-fire" style="color: var(--s-yellow); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Methane</h6>
+                                    <p class="card-text small">CH₄</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Ammonia" data-formula="NH3" data-type="small" data-atoms="4" data-bonds="3">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-wind" style="color: var(--ni-chrome); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Ammonia</h6>
+                                    <p class="card-text small">NH₃</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Carbon Dioxide" data-formula="CO2" data-type="small" data-atoms="3" data-bonds="4">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-cloud" style="color: var(--er-pink); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">CO₂</h6>
+                                    <p class="card-text small">CO₂</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Ethanol" data-formula="C2H6O" data-type="small" data-atoms="9" data-bonds="8">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-wine-bottle" style="color: var(--ge-silver); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Ethanol</h6>
+                                    <p class="card-text small">C₂H₆O</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Glucose" data-formula="C6H12O6" data-type="small" data-atoms="24" data-bonds="24">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-candy-cane" style="color: var(--s-yellow); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Glucose</h6>
+                                    <p class="card-text small">C₆H₁₂O₆</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Protein examples -->
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Hemoglobin" data-pdb="1A3N" data-type="protein" data-atoms="" data-bonds="">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-dna" style="color: var(--u-green); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Hemoglobin</h6>
+                                    <p class="card-text small">PDB: 1A3N</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Insulin" data-pdb="4INS" data-type="protein" data-atoms="" data-bonds="">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-dna" style="color: var(--er-pink); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Insulin</h6>
+                                    <p class="card-text small">PDB: 4INS</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="card feature-card molecule-card" data-name="Myoglobin" data-pdb="1MBN" data-type="protein" data-atoms="" data-bonds="">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-dna" style="color: var(--ni-chrome); font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">Myoglobin</h6>
+                                    <p class="card-text small">PDB: 1MBN</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Custom input -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card feature-card">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-2">Custom Molecule/Protein</h6>
+                                    <input type="text" id="custom-smiles" class="form-control mb-2" placeholder="Enter SMILES (e.g., CC(=O)OC1=CC=CC=C1C(=O)O)">
+                                    <input type="text" id="custom-pdb" class="form-control mb-2" placeholder="Or enter PDB ID (e.g., 1CRN)">
+                                    <button class="btn btn-outline-u btn-sm w-100" onclick="loadCustomMolecule()">Load Custom Structure</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted">Supports many SMILES or PDB codes. Try caffeine (CN1C=NC2=C1C(=O)N(C(=O)N2C)C), aspirin (CC(=O)OC1=CC=CC=C1C(=O)O), or proteins like 2HIU.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3D Viewer -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-cube"></i> 3D Molecular Structure</h4>
+                </div>
+                <div class="card-body" style="background: transparent;">
+                    <div id="molecule-viewer"
+                        style="height: 500px; background: transparent; border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 0 2px var(--u-green, #00b894) inset;">
+                        <div id="molecule-placeholder" class="text-center" style="color: var(--text-secondary);">
+                            <i class="fas fa-atom" style="font-size: 4rem; margin-bottom: 1rem; color: var(--u-green); animation: pulse 2s infinite;"></i>
+                            <h5>Select or enter a molecule/protein to view</h5>
+                            <p>Choose from the molecules above or enter your own SMILES/PDB code</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Molecule Info</h5>
+                </div>
+                <div class="card-body">
+                    <div id="molecule-info">
+                        <p style="color: var(--text-secondary);">Select or enter a molecule/protein to see detailed information</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="fas fa-cogs"></i> Viewer Controls</h6>
+                </div>
+                <div class="card-body">
+                    <button id="rotate-btn" class="btn btn-primary btn-sm mb-2 w-100" onclick="toggleRotation()">
+                        <i class="fas fa-sync"></i> Toggle Rotation
+                    </button>
+                    <button class="btn btn-secondary btn-sm mb-2 w-100" onclick="resetView()">
+                        <i class="fas fa-undo"></i> Reset View
+                    </button>
+                    <button class="btn btn-success btn-sm w-100" onclick="takeScreenshot()">
+                        <i class="fas fa-camera"></i> Screenshot
+                    </button>
+                    <button class="btn btn-info btn-sm w-100 mt-2" onclick="toggleSurface()">
+                        <i class="fas fa-layer-group"></i> Surface/Van der Waals
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.3/3Dmol-min.js"></script>
+<script>
+const moleculeSmiles = {
+    "H2O": "O",
+    "CH4": "C",
+    "NH3": "N",
+    "CO2": "O=C=O",
+    "C2H6O": "CCO",
+    "C6H12O6": "C(C1C(C(C(C(O1)O)O)O)O)O",
+    "Caffeine": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+    "Aspirin": "CC(=O)OC1=CC=CC=C1C(=O)O",
+};
+
+let glViewer = null;
+let rotationInterval = null;
+let surfaceOn = false;
+let lastLoadType = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.molecule-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const type = this.dataset.type;
+            const name = this.dataset.name;
+            const formula = this.dataset.formula;
+            const pdb = this.dataset.pdb;
+            const atoms = this.dataset.atoms;
+            const bonds = this.dataset.bonds;
+            if (type === "protein") {
+                loadAndRenderProtein(pdb, name);
+            } else {
+                loadAndRenderMolecule(formula, name, atoms, bonds);
+            }
+        });
+    });
+});
+
+function loadCustomMolecule() {
+    const smiles = document.getElementById('custom-smiles').value.trim();
+    const pdbid = document.getElementById('custom-pdb').value.trim();
+    if (smiles) {
+        loadAndRenderMolecule(smiles, "Custom Molecule", "", "");
+    } else if (pdbid) {
+        loadAndRenderProtein(pdbid, "Custom Protein");
+    } else {
+        alert("Please enter a SMILES string or PDB code.");
+    }
+}
+
+function loadAndRenderMolecule(formulaOrSmiles, name, atoms, bonds) {
+    surfaceOn = false;
+    lastLoadType = "molecule";
+    let smiles = moleculeSmiles[formulaOrSmiles] || formulaOrSmiles;
+
+    // Uncomment if you get CORS errors:
+    // const cors = "https://corsproxy.io/?";
+    const cors = "";
+
+    const urlSmiles = `${cors}https://cactus.nci.nih.gov/chemical/structure/${encodeURIComponent(smiles)}/sdf`;
+    const urlName = `${cors}https://cactus.nci.nih.gov/chemical/structure/${encodeURIComponent(name || formulaOrSmiles)}/sdf`;
+
+    showLoading("molecule-viewer");
+
+    fetch(urlSmiles)
+        .then(response => {
+            if (!response.ok) throw new Error();
+            return response.text();
+        })
+        .then(sdf => {
+            if (!sdf.trim()) throw new Error();
+            renderSDF(sdf, name, formulaOrSmiles, atoms, bonds);
+        })
+        .catch(() => {
+            fetch(urlName)
+                .then(response => {
+                    if (!response.ok) throw new Error();
+                    return response.text();
+                })
+                .then(sdf => {
+                    if (!sdf.trim()) throw new Error();
+                    renderSDF(sdf, name, formulaOrSmiles, atoms, bonds);
+                })
+                .catch(() => {
+                    showError("molecule-viewer", "Failed to fetch 3D structure for this molecule. Try another molecule or check your network.");
+                });
+        });
+}
+
+function renderSDF(sdf, name, formulaOrSmiles, atoms, bonds) {
+    clearViewer();
+    glViewer = $3Dmol.createViewer("molecule-viewer", {
+        backgroundColor: "transparent",
+        defaultcolors: $3Dmol.rasmolElementColors
+    });
+    glViewer.addModel(sdf, "sdf");
+    glViewer.setStyle({}, {stick:{}, sphere:{scale:0.3}});
+    glViewer.zoomTo();
+    glViewer.render();
+    updateMoleculeInfo(name, formulaOrSmiles, atoms, bonds, "small");
+}
+
+function loadAndRenderProtein(pdbid, name) {
+    surfaceOn = false;
+    lastLoadType = "protein";
+    pdbid = pdbid.toUpperCase().replace(/[^A-Z0-9]/g,"");
+    const url = `https://files.rcsb.org/download/${pdbid}.pdb`;
+
+    showLoading("molecule-viewer");
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error();
+            return response.text();
+        })
+        .then(pdb => {
+            clearViewer();
+            glViewer = $3Dmol.createViewer("molecule-viewer", {
+                backgroundColor: "transparent",
+                defaultcolors: $3Dmol.rasmolElementColors
+            });
+            glViewer.addModel(pdb, "pdb");
+            glViewer.setStyle({}, {cartoon: {color: 'spectrum'}});
+            glViewer.zoomTo();
+            glViewer.render();
+            updateMoleculeInfo(name, pdbid, "", "", "protein");
+        })
+        .catch(() => {
+            showError("molecule-viewer", "Failed to load 3D structure for this protein.");
+        });
+}
+
+function updateMoleculeInfo(name, formulaOrId, atoms, bonds, type) {
+    let html = "";
+    if (type === "protein") {
+        html = `
+            <h6 style="color: var(--u-green);">${name}</h6>
+            <hr style="border-color: var(--ni-chrome);">
+            <p><strong style="color: var(--s-yellow);">PDB Code:</strong> ${formulaOrId}</p>
+            <p><strong style="color: var(--ge-silver);">Type:</strong> Protein</p>
+            <hr style="border-color: var(--ni-chrome);">
+            <small style="color: var(--text-muted);">
+                3D protein visualization powered by GeNiUS EdTech and RCSB PDB
+            </small>
+        `;
+    } else {
+        html = `
+            <h6 style="color: var(--u-green);">${name}</h6>
+            <hr style="border-color: var(--ni-chrome);">
+            <p><strong style="color: var(--s-yellow);">Formula / SMILES:</strong> ${formulaOrId}</p>
+            ${atoms ? `<p><strong style="color: var(--er-pink);">Atoms:</strong> ${atoms}</p>` : ""}
+            ${bonds ? `<p><strong style="color: var(--ni-chrome);">Bonds:</strong> ${bonds}</p>` : ""}
+            <p><strong style="color: var(--ge-silver);">Type:</strong> Small molecule</p>
+            <hr style="border-color: var(--ni-chrome);">
+            <small style="color: var(--text-muted);">
+                3D molecule visualization powered by GeNiUS EdTech and NIH CACTUS
+            </small>
+        `;
+    }
+    document.getElementById('molecule-info').innerHTML = html;
+}
+
+function showLoading(elementId) {
+    // Only add placeholder if it's not already present
+    if (!document.getElementById('molecule-placeholder')) {
+        document.getElementById(elementId).innerHTML += "<div id='molecule-placeholder' class='text-center'><div class='spinner-border text-success'></div><br>Loading structure...</div>";
+    }
+}
+
+function showError(elementId, msg) {
+    document.getElementById(elementId).innerHTML = `<div class='alert alert-danger text-center'>${msg}</div>`;
+}
+
+function clearViewer() {
+    // Remove only the placeholder inside the viewer, not the viewer itself
+    const placeholder = document.getElementById('molecule-placeholder');
+    if (placeholder) {
+        placeholder.remove();
+    }
+    if (rotationInterval) {
+        clearInterval(rotationInterval);
+        rotationInterval = null;
+        document.getElementById('rotate-btn').innerHTML = '<i class="fas fa-sync"></i> Toggle Rotation';
+    }
+    surfaceOn = false;
+}
+
+function toggleRotation() {
+    if (!glViewer) return;
+    if (rotationInterval) {
+        clearInterval(rotationInterval);
+        rotationInterval = null;
+        document.getElementById('rotate-btn').innerHTML = '<i class="fas fa-sync"></i> Toggle Rotation';
+    } else {
+        rotationInterval = setInterval(function() {
+            glViewer.rotate(1);
+            glViewer.render();
+        }, 40);
+        document.getElementById('rotate-btn').innerHTML = '<i class="fas fa-pause"></i> Stop Rotation';
+    }
+}
+
+function resetView() {
+    if (glViewer) {
+        glViewer.setViewStyle({projection:"perspective"});
+        glViewer.zoomTo();
+        glViewer.render();
+    }
+    if (rotationInterval) {
+        clearInterval(rotationInterval);
+        rotationInterval = null;
+        document.getElementById('rotate-btn').innerHTML = '<i class="fas fa-sync"></i> Toggle Rotation';
+    }
+    if (surfaceOn) {
+        toggleSurface();
+    }
+}
+
+function takeScreenshot() {
+    if (!glViewer) return;
+    const img = glViewer.pngURI();
+    const win = window.open();
+    win.document.write('<iframe src="' + img + '" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>');
+}
+
+function toggleSurface() {
+    if (!glViewer) return;
+    if (!surfaceOn) {
+        if (lastLoadType === "protein") {
+            glViewer.setStyle({}, {cartoon: {color: 'spectrum'}});
+            glViewer.addSurface($3Dmol.SurfaceType.VDW, {opacity:0.5, color:"white"});
+        } else {
+            glViewer.setStyle({}, {stick:{}, sphere:{scale:0.3}});
+            glViewer.addSurface($3Dmol.SurfaceType.VDW, {opacity:0.6, color:"white"});
+        }
+        surfaceOn = true;
+    } else {
+        glViewer.removeAllSurfaces();
+        glViewer.setStyle({}, lastLoadType === "protein"
+            ? {cartoon: {color: 'spectrum'}}
+            : {stick:{}, sphere:{scale:0.3}});
+        surfaceOn = false;
+    }
+    glViewer.render();
+}
+</script>
+{% endblock %}
